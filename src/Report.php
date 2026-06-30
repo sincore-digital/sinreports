@@ -104,6 +104,11 @@ class Report
 	 */
 	public function prepare(): \SiNReports\Report
 	{
+		// verifica se tem template, se não tiver, seta o padrão
+		if(!isset($this->templateFilepath)) {
+			$this->templateFilepath = __DIR__ . "/Templates/dataset.tpl";
+		}
+
 		// retorna ele mesmo
         return $this;
 	}
@@ -131,6 +136,21 @@ class Report
 	public function setVars(array $vars): \SiNReports\Report
 	{
 		$this->templateVars = $vars;
+
+		// retorna ele mesmo
+		return $this;
+	}
+
+	/**
+	 * Armazena o vetor de dados
+	 * 
+	 * @param array $dataset
+	 * @return \SiNReports\Report
+	 */
+	public function setDataset(array $dataset): \SiNReports\Report
+	{
+		// armazena os dados no vetor de variaveis, ja que é essa a variavel padrão usada no tpl padrão
+		$this->templateVars['dataset'] = $dataset;
 
 		// retorna ele mesmo
 		return $this;

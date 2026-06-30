@@ -76,10 +76,9 @@ class Html implements FormatInterface
 			"json_encode", "json_decode",
 			"get_class",
 		];
-		foreach($natives as $native) {
-			$this->smarty->registerPlugin("modifier", $native, $native);
+		foreach($natives as $native => $value) {
+			$this->smarty->registerPlugin("modifier", $native, $value);
 		}
-
 
 		// faz o render
 		$this->render();

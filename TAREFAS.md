@@ -5,4 +5,8 @@
 - [ ] criar metodo de configuração para passar o caminho do `wkhtmltopdf` caso não consiga usar o da lib, e outras configurações
 - [ ] criar o formato do output em CSV
 - [ ] acompanhar o andamento em produção, ja que usamos diretório temporario que não é acessivel pelo usuario, talvez criar um metodo que limpe o diretório todo
+- [ ] criar helpers para formatação conforme o LOCATE no `dataset.tpl`
+- [ ] adicionar metodo no report para configurar as colunas, como prefixo, sufixo, number_format, data_format, etc
+- [ ] adicionar metodo no report para setar header
+- [ ] adicionar metodo no report para setar footer
 - [x] ver se tem como usar um diretório temporario do PHP, do sistema ou um diretório da lib, para não ter que configurar o smarty
