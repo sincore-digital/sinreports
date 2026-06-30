@@ -1,0 +1,13 @@
+{
+    "name": "sincore-digital/sinreports",
+    "description": "Biblioteca PHP gerador de relatórios",
+    "autoload": {
+        "psr-4": {
+            "SiNReports\\": "src/"
+        }
+    },
+	"require": {
+		"smarty/smarty": "4.*",
+        "mikehaertl/phpwkhtmltopdf": "^2.5"
+	}
+}
