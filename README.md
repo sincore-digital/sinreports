@@ -1,3 +1,5 @@
+> 🔴 ainda estamos em teste, não utilize em produção, pois pode quebrar à qualquer commit
+
 # SiNReports
 
 O SiNReports é uma biblioteca gratuita para a geração automatizada de relatórios e documentos sem utilização de APIs remotas, servidores e instalações complexas. Renderize templates Smarty e crie relatórios/documentos em HTML, PDF e XLS
