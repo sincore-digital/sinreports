@@ -31,20 +31,9 @@ $vars = [
 	],
 ];
 
-$config = [
-	'smarty' => [
-		'compile_dir' => APPLICATION_PATH . "/tmp/templates_c",
-		'cache_dir' => APPLICATION_PATH . "/tmp/templates_c",
-		'debugging' => FALSE,
-		'caching' => FALSE,
-		'cache_lifetime' => 600,
-		'compile_check' => FALSE,
-		'force_compile' => FALSE,
-	],
-];
-
-$report = new \SiNReports\Report($config['smarty']);
-$html = $report->setDataset($vars)
+$report = new \SiNReports\Report();
+$report->setDebugMode(TRUE)
+	->setDataset($vars)
 
 	// ->toHtml() // gera o arquivo final em HTML
 	// ->toXls() // gera o arquivo final em XLS
@@ -77,20 +66,9 @@ $vars = [
 	];
 ];
 
-$config = [
-	'smarty' => [
-		'compile_dir' => APPLICATION_PATH . "/tmp/templates_c",
-		'cache_dir' => APPLICATION_PATH . "/tmp/templates_c",
-		'debugging' => FALSE,
-		'caching' => FALSE,
-		'cache_lifetime' => 600,
-		'compile_check' => FALSE,
-		'force_compile' => FALSE,
-	],
-];
-
-$report = new \SiNReports\Report($config['smarty']);
-$html = $report->setTemplate(APPLICATION_PATH . "/relatorios/teste.tpl")
+$report = new \SiNReports\Report();
+$report->setDebugMode(TRUE)
+	->setTemplate(APPLICATION_PATH . "/relatorios/teste.tpl")
 	->setVars($vars)
 
 	// ->toHtml() // gera o arquivo final em HTML

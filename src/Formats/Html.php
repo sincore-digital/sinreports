@@ -47,13 +47,13 @@ class Html implements FormatInterface
 
 		// cria e configura objeto smarty
 		$this->smarty = new \Smarty();
-		$this->smarty->setForceCompile($config['force_compile']);
-		$this->smarty->setDebugging($config['debugging']);
-		$this->smarty->setCacheDir($config['cache_dir']);
-		$this->smarty->setCaching($config['caching']);
-		$this->smarty->setCacheLifetime($config['cache_lifetime']);
-		$this->smarty->setCompileDir($config['compile_dir']);
-		if($config['compile_check']) {
+		$this->smarty->setForceCompile($config['smarty']['force_compile']);
+		$this->smarty->setDebugging($config['smarty']['debugging']);
+		$this->smarty->setCacheDir($config['smarty']['cache_dir']);
+		$this->smarty->setCaching($config['smarty']['caching']);
+		$this->smarty->setCacheLifetime($config['smarty']['cache_lifetime']);
+		$this->smarty->setCompileDir($config['smarty']['compile_dir']);
+		if($config['smarty']['compile_check']) {
 			$this->smarty->setCompileCheck(\Smarty::COMPILECHECK_ON);
 		}
 		else {

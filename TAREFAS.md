@@ -3,5 +3,6 @@
 - [ ] no `toHTML()` pensar numa forma de rodar o `window.print()` ou não automaticamente
 - [ ] criar um metodo `setDebug` ou algo assim para mostrar erros avançados, por exemplo, na geração de pdf, que mostra um erro enorme
 - [ ] criar metodo de configuração para passar o caminho do `wkhtmltopdf` caso não consiga usar o da lib, e outras configurações
-- [ ] ver se tem como usar um diretório temporario do PHP, do sistema ou um diretório da lib, para não ter que configurar o smarty
 - [ ] criar o formato do output em CSV
+- [ ] acompanhar o andamento em produção, ja que usamos diretório temporario que não é acessivel pelo usuario, talvez criar um metodo que limpe o diretório todo
+- [x] ver se tem como usar um diretório temporario do PHP, do sistema ou um diretório da lib, para não ter que configurar o smarty
