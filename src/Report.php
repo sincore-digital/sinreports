@@ -24,34 +24,63 @@ class Report
 	}
 
 	/**
-	 * Armazena o tipo de input, se é um dataset ou um arquivo .tpl
-	 * 
-	 * @var string
-	 */
-	private string $input;
-
-	/**
 	 * Armazena os dados ou variaveis a serem renderizadas no input
 	 * 
 	 * @var array
 	 */
 	private array $data;
+
+	/**
+	 * Armazena o arquivo .tpl do relatório
+	 * 
+	 * @var string
+	 */
+	private string $templateFilepath;
+
+	/**
+	 * Armazena as variaveis do template
+	 * 
+	 * @var array
+	 */
+	private array $templateVars;
 	
 	/**
-	 * Summary of prepare
+	 * Prepara o relatório organizando as informações e deixando-as pronta para o output
 	 * 
-	 * @param string $input - arquivo .tpl ou "dataset"
-	 * @param array $data
 	 * @return \SiNReports\Report
 	 */
-	public function prepare(string $input, array $data): \SiNReports\Report
+	public function prepare(): \SiNReports\Report
 	{
-		// guarda as variaveis
-		$this->input = $input;
-        $this->data = $data;
-
 		// retorna ele mesmo
         return $this;
+	}
+
+	/**
+	 * Armazena o arquivo template do relatório
+	 * 
+	 * @param string $template
+	 * @return \SiNReports\Report
+	 */
+	public function setTemplate(string $template): \SiNReports\Report
+	{
+		$this->templateFilepath = $template;
+
+		// retorna ele mesmo
+		return $this;
+	}
+
+	/**
+	 * Armazena as variaveis do template do relatório
+	 * 
+	 * @param array $vars
+	 * @return \SiNReports\Report
+	 */
+	public function setVars(array $vars): \SiNReports\Report
+	{
+		$this->templateVars = $vars;
+
+		// retorna ele mesmo
+		return $this;
 	}
 
 	/**
@@ -62,7 +91,7 @@ class Report
 	public function toHtml(): \SiNReports\Formats\Html
 	{
 		// cria o renderizador HTML
-		$renderer = new \SiNReports\Formats\Html($this->config, $this->input, $this->data);
+		$renderer = new \SiNReports\Formats\Html($this->config, $this->templateFilepath, $this->templateVars);
 
 		// retorna o renderizador
 		return $renderer;
@@ -80,6 +109,20 @@ class Report
 
 		// cria o renderizador PDF
 		$renderer = new \SiNReports\Formats\Pdf($this->config, $html);
+
+		// retorna o renderizador
+		return $renderer;
+	}
+
+	/**
+	 * Faz o output do relatório em XLS
+	 * 
+	 * @return \SiNReports\Formats\Xls
+	 */
+	public function toXls(): \SiNReports\Formats\Xls
+	{
+		// cria o renderizador Xls
+		$renderer = new \SiNReports\Formats\Xls();
 
 		// retorna o renderizador
 		return $renderer;

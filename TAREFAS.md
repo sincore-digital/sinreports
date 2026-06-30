@@ -4,3 +4,4 @@
 - [ ] criar um metodo `setDebug` ou algo assim para mostrar erros avançados, por exemplo, na geração de pdf, que mostra um erro enorme
 - [ ] criar metodo de configuração para passar o caminho do `wkhtmltopdf` caso não consiga usar o da lib, e outras configurações
 - [ ] ver se tem como usar um diretório temporario do PHP, do sistema ou um diretório da lib, para não ter que configurar o smarty
+- [ ] criar o formato do output em CSV
