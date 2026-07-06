@@ -195,7 +195,7 @@ class Report
 	public function toXls(): \SiNReports\Formats\Xls
 	{
 		// cria o renderizador Xls
-		$renderer = new \SiNReports\Formats\Xls();
+		$renderer = new \SiNReports\Formats\Xls($this->config, $this->templateVars);
 
 		// retorna o renderizador
 		return $renderer;
