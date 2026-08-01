@@ -1,0 +1,21 @@
+name: Update Packagist
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+
+jobs:
+  update-packagist:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Packagist update
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: 'https://packagist.org/api/update-package'
+          method: 'POST'
+          contentType: 'application/json'
+          data: '{"repository": {"url": "https://github.com/${{ github.repository }}"}}'
+          customHeaders: '{"Authorization": "Bearer ${{ secrets.PACKAGIST_TOKEN }}"}'
