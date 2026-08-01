@@ -4,7 +4,7 @@
 
 		<style>
 			.table-container {
-				overflow-x: auto;
+				
 			}
 
 			.report-table {
@@ -53,16 +53,16 @@
 			<table class="report-table">
 				<thead>
 					<tr>
+					{assign var=dataColumnIndex value=0}
 					{foreach from=$dataset[0] key=datacolumn item=datavalue}
-						{if $datacolumn == "singrouping_sexo"}
-							{continue}
+						
+						{if isset($dataset_column_titles[$dataColumnIndex])}
+							<th>{$dataset_column_titles[$dataColumnIndex]}</th>
+						{else}
+							<th>{$datacolumn}</th>
 						{/if}
-						{if $datacolumn == "singrouping_raca"}
-							{continue}
-						{/if}
-
-						<th>{$datacolumn}</th>
 					
+						{assign var=dataColumnIndex value=$dataColumnIndex+1}
 					{/foreach}
 					</tr>
 				</thead>

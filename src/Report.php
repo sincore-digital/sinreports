@@ -13,6 +13,25 @@ class Report
 	protected array $config;
 
 	/**
+	 * Armazena o nome das colunas
+	 */
+	protected array $columnTitles;
+
+	/**
+	 * Armazena o arquivo .tpl do relatório
+	 * 
+	 * @var string
+	 */
+	private string $templateFilepath;
+
+	/**
+	 * Armazena as variaveis do template
+	 * 
+	 * @var array
+	 */
+	private array $templateVars;
+
+	/**
 	 * Construtor da classe
 	 */
 	public function __construct()
@@ -33,7 +52,6 @@ class Report
 			'debugging' => FALSE,
 		];
 	}
-
 
 	/**
 	 * Seta a configuração smarty custom
@@ -71,31 +89,9 @@ class Report
 		$this->config['smarty']['force_compile'] = $debug;
 		$this->config['smarty']['caching'] = !$debug;
 
-
 		// retorna ele mesmo
 		return $this;
 	}
-
-	/**
-	 * Armazena os dados ou variaveis a serem renderizadas no input
-	 * 
-	 * @var array
-	 */
-	private array $data;
-
-	/**
-	 * Armazena o arquivo .tpl do relatório
-	 * 
-	 * @var string
-	 */
-	private string $templateFilepath;
-
-	/**
-	 * Armazena as variaveis do template
-	 * 
-	 * @var array
-	 */
-	private array $templateVars;
 	
 	/**
 	 * Prepara o relatório organizando as informações e deixando-as pronta para o output
@@ -108,6 +104,19 @@ class Report
 		if(!isset($this->templateFilepath)) {
 			$this->templateFilepath = __DIR__ . "/Templates/dataset.tpl";
 		}
+
+		// verifica se está usando dataset, tabelado
+		$this->templateVars['dataset_column_titles'] = $this->columnTitles??[];
+
+		// if(isset($this->templateVars['dataset'])) {
+		// 	// percorre columnTitles para trocar os dados da primeira linha
+		// 	foreach($this->columnTitles as $index => $name) {
+		// 		$this->templateVars['dataset'][0][$index] = $name;
+		// 	}
+		// }
+
+		// d($this->templateVars);
+		
 
 		// retorna ele mesmo
         return $this;
@@ -123,6 +132,21 @@ class Report
 	{
 		// faz o merge das configurações
 		$this->config = array_merge($this->config, $config);
+		
+		// retorna ele mesmo
+		return $this;
+	}
+
+	/**
+	 * Seta o nome das colunas
+	 * 
+	 * @param array $columnTitles
+	 * @return \SiNReports\Report
+	 */
+	public function setColumnTitles(array $columnTitles): \SiNReports\Report
+	{
+		// salva o nome das colunas
+		$this->columnTitles = $columnTitles;
 		
 		// retorna ele mesmo
 		return $this;
