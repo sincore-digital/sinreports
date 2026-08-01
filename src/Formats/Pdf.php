@@ -35,11 +35,29 @@ class Pdf implements FormatInterface
 		$this->config = $config;
 		$this->html = $html;
 
-		// cria o objeto para geração de PDF
-		$this->pdf = new \mikehaertl\wkhtmlto\Pdf([
+		// prepara os options
+		$options = [
 			'binary' => __DIR__ . '/../../bin/wkhtmltopdf',
 			'ignoreWarnings' => TRUE,
-		]);
+			'load-error-handling' => "skip",
+			'load-media-error-handling' => "skip",
+
+			// 'enable-smart-shrinking',
+			// 'viewport-size' => "1920x1080",
+			// 'page-width' => "1920px",
+			// 'page-height' => "1080px",
+		];
+
+		if(isset($config['orientation'])) $options['orientation'] = $config['orientation'];
+		if(isset($config['page-size'])) $options['page-size'] = $config['page-size'];
+		if(isset($config['margin-bottom'])) $options['margin-bottom'] = $config['margin-bottom'];
+		if(isset($config['margin-top'])) $options['margin-top'] = $config['margin-top'];
+		if(isset($config['margin-left'])) $options['margin-left'] = $config['margin-left'];
+		if(isset($config['margin-right'])) $options['margin-right'] = $config['margin-right'];
+		if(isset($config['title'])) $options['title'] = $config['title'];
+
+		// cria o objeto para geração de PDF
+		$this->pdf = new \mikehaertl\wkhtmlto\Pdf($options);
 		$this->pdf->addPage($html);
 		
 	}

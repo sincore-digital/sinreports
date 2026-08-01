@@ -114,6 +114,21 @@ class Report
 	}
 
 	/**
+	 * Seta as configurações (https://wkhtmltopdf.org/usage/wkhtmltopdf.txt)
+	 * 
+	 * @param array $config
+	 * @return \SiNReports\Report
+	 */
+	public function setConfig(array $config): \SiNReports\Report
+	{
+		// faz o merge das configurações
+		$this->config = array_merge($this->config, $config);
+		
+		// retorna ele mesmo
+		return $this;
+	}
+
+	/**
 	 * Armazena o arquivo template do relatório
 	 * 
 	 * @param string $template
@@ -175,7 +190,7 @@ class Report
 	 * 
 	 * @return \SiNReports\Formats\Pdf
 	 */
-	public function toPdf(): \SiNReports\Formats\Pdf
+	public function toPdf($options=[]): \SiNReports\Formats\Pdf
 	{
 		// recupera o html a partir do renderizador de html
 		$html = $this->toHtml()->getHtml();
