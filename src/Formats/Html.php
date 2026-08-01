@@ -77,7 +77,7 @@ class Html implements FormatInterface
 			"get_class",
 		];
 		foreach($natives as $native => $value) {
-			$this->smarty->registerPlugin("modifier", $native, $value);
+			$this->smarty->registerPlugin("modifier", $value, $value);
 		}
 
 		// faz o render

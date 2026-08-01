@@ -13,9 +13,9 @@ class Report
 	protected array $config;
 
 	/**
-	 * Armazena o nome das colunas
+	 * Armazena as configurações das colunas
 	 */
-	protected array $columnTitles;
+	protected array $columnConfigs;
 
 	/**
 	 * Armazena o arquivo .tpl do relatório
@@ -106,7 +106,7 @@ class Report
 		}
 
 		// verifica se está usando dataset, tabelado
-		$this->templateVars['dataset_column_titles'] = $this->columnTitles??[];
+		$this->templateVars['dataset_column_configs'] = $this->columnConfigs??[];
 
 		// if(isset($this->templateVars['dataset'])) {
 		// 	// percorre columnTitles para trocar os dados da primeira linha
@@ -119,7 +119,7 @@ class Report
 		
 
 		// retorna ele mesmo
-        return $this;
+		return $this;
 	}
 
 	/**
@@ -143,10 +143,26 @@ class Report
 	 * @param array $columnTitles
 	 * @return \SiNReports\Report
 	 */
-	public function setColumnTitles(array $columnTitles): \SiNReports\Report
+	// public function setColumnTitles(array $columnTitles): \SiNReports\Report
+	// {
+	// 	// salva o nome das colunas
+	// 	$this->columnTitles = $columnTitles;
+		
+	// 	// retorna ele mesmo
+	// 	return $this;
+	// }
+
+	/**
+	 * Seta as configurações das colunas
+	 * 
+	 * @param string $columnName
+	 * @param array $columnConfig
+	 * @return \SiNReports\Report
+	 */
+	public function configureColumn(string $columnName, array $columnConfig): \SiNReports\Report
 	{
-		// salva o nome das colunas
-		$this->columnTitles = $columnTitles;
+		// salva as configurações da coluna
+		$this->columnConfigs[$columnName] = $columnConfig;
 		
 		// retorna ele mesmo
 		return $this;

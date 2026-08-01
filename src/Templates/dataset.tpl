@@ -53,48 +53,54 @@
 			<table class="report-table">
 				<thead>
 					<tr>
-					{assign var=dataColumnIndex value=0}
 					{foreach from=$dataset[0] key=datacolumn item=datavalue}
 						
-						{if isset($dataset_column_titles[$dataColumnIndex])}
-							<th>{$dataset_column_titles[$dataColumnIndex]}</th>
+						{if isset($dataset_column_configs[$datacolumn]['title'])}
+							<th>{$dataset_column_configs[$datacolumn]['title']}</th>
 						{else}
 							<th>{$datacolumn}</th>
 						{/if}
-					
-						{assign var=dataColumnIndex value=$dataColumnIndex+1}
+
 					{/foreach}
 					</tr>
 				</thead>
 				<tbody>
 				
 					{foreach from=$dataset item=dataitem}
-						
-						{assign var=class value=""}
-						{foreach from=$dataitem key=datacolumn item=datavalue}
-							{if $datacolumn == "singrouping_sexo" && $datavalue == 1}
-								{assign var=class value="group1"}
-							{/if}
-							{if $datacolumn == "singrouping_raca" && $datavalue == 1}
-								{assign var=class value="group2"}
-							{/if}
-						{/foreach}
-
-						<tr class="{$class}">
+						<tr>
 							{foreach from=$dataitem key=datacolumn item=datavalue}
-								{if $datacolumn == "singrouping_sexo"}
-									{continue}
-								{/if}
-								{if $datacolumn == "singrouping_raca"}
-									{continue}
-								{/if}
 
+								{assign var=column_prefix value=""}
+								{assign var=column_sufix value=""}
 								
+								{assign var=column_value value=$datavalue}
+
+								{* verifica se tem configuração da coluna *}
+								{if isset($dataset_column_configs[$datacolumn])}
+
+									{assign var=column_config value=$dataset_column_configs[$datacolumn]}
+
+									{* salva o prefixo e sufixo *}
+									{assign var=column_prefix value=$column_config['prefix']|default:""}
+									{assign var=column_sufix value=$column_config['sufix']|default:""}
+
+									{* formata o tipo decimal *}
+									{if $column_config['type']|default:"" == "decimal"}
+										{assign var=column_value value=number_format($column_value, $column_config['decimals']|default:2, $column_config['decimal_separator']|default:".", $column_config['thousands_separator']|default:",")}
 									
+									{* formata o tipo data *}
+									{else if $column_config['type']|default:"" == "date"}
+										{if strlen($column_value|default:"") > 0}
+										{assign var=column_value value=date($column_config['format'], strtotime($column_value))}
+										{/if}
 
-								<td class="">{($datavalue)|escape}</td>
-
+									{/if}
 								
+								{/if}
+								
+								<td>
+									{$column_prefix}{$column_value|escape}{$column_sufix}
+								</td>
 							
 							{/foreach}
 						</tr>
