@@ -6,7 +6,6 @@ on:
       - main
     tags:
       - '*'
-
 jobs:
   update-packagist:
     runs-on: ubuntu-latest
@@ -17,5 +16,4 @@ jobs:
           url: 'https://packagist.org/api/update-package'
           method: 'POST'
           contentType: 'application/json'
-          data: '{"repository": {"url": "https://github.com/${{ github.repository }}"}}'
-          customHeaders: '{"Authorization": "Bearer ${{ secrets.PACKAGIST_TOKEN }}"}'
+          data: '{"username": "${{ secrets.PACKAGIST_USERNAME }}", "apiToken": "${{ secrets.PACKAGIST_TOKEN }}", "repository": {"url": "https://github.com/${{ github.repository }}"}}'
