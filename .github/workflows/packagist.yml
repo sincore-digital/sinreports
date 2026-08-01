@@ -6,14 +6,13 @@ on:
       - main
     tags:
       - '*'
+
 jobs:
   update-packagist:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Packagist update
-        uses: fjogeleit/http-request-action@v1
-        with:
-          url: 'https://packagist.org/api/update-package'
-          method: 'POST'
-          contentType: 'application/json'
-          data: '{"username": "${{ secrets.PACKAGIST_USERNAME }}", "apiToken": "${{ secrets.PACKAGIST_TOKEN }}", "repository": {"url": "https://github.com/${{ github.repository }}"}}'
+        run: |
+          curl -X POST 'https://packagist.org/api/update-package' \
+            -H 'Content-Type: application/json' \
+            -d "{\"username\": \"${{ secrets.PACKAGIST_USERNAME }}\", \"apiToken\": \"${{ secrets.PACKAGIST_TOKEN }}\", \"repository\": {\"url\": \"https://github.com/${{ github.repository }}\"}}"
