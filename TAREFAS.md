@@ -10,3 +10,4 @@
 - [ ] adicionar metodo no report para setar header
 - [ ] adicionar metodo no report para setar footer
 - [x] ver se tem como usar um diretório temporario do PHP, do sistema ou um diretório da lib, para não ter que configurar o smarty
+- [ ] não fazer o die() ou exit() nos metodos, só manda pra tela e deixa continuar o codigo. quem deve saber se deve matar o script ou nã é o dev, nao a lib
