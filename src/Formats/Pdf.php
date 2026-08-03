@@ -37,7 +37,7 @@ class Pdf implements FormatInterface
 
 		// prepara os options
 		$options = [
-			'binary' => __DIR__ . '/../../bin/wkhtmltopdf',
+			// 'binary' => __DIR__ . '/../../bin/wkhtmltopdf',
 			'ignoreWarnings' => TRUE,
 			'load-error-handling' => "skip",
 			'load-media-error-handling' => "skip",
