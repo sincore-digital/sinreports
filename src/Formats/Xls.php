@@ -62,6 +62,11 @@ class Xls implements FormatInterface
 			if(isset($columnsConfig[$header])) {
 				$columnConfig = $columnsConfig[$header];
 
+				// verifica se é para ocultar a coluna
+				if($columnConfig['hide']) {
+					continue;
+				}
+
 				// verifica se tem titulo
 				if(isset($columnConfig['title'])) {
 					$columnTitle = $columnConfig['title'];
@@ -91,6 +96,11 @@ class Xls implements FormatInterface
 				// verifica se existe configuração da coluna
 				if(isset($columnsConfig[$header])) {
 					$columnConfig = $columnsConfig[$header];
+
+					// verifica se é para ocultar a coluna
+					if($columnConfig['hide']) {
+						continue;
+					}
 
 					// verifica se tem titulo
 					if(isset($columnConfig['type'])) {
@@ -139,6 +149,13 @@ class Xls implements FormatInterface
 							}
 
 							$this->sheet->getActiveSheet()->getStyle($this->getCOlumnLetter($column_count) . "" . $line_count)->getNumberFormat()->setFormatCode($format);
+						}
+
+						// se for boolean
+						else if($columnConfig['type'] == "boolean") {
+							// $this->sheet->getActiveSheet()->getStyle($this->getCOlumnLetter($column_count) . "" . $line_count)->getNumberFormat()->setFormatCode('"Yes";;"No"');
+							$format = '"Sim";;"Não"';
+
 						}
 
 					}
