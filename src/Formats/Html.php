@@ -80,6 +80,146 @@ class Html implements FormatInterface
 			$this->smarty->registerPlugin("modifier", $value, $value);
 		}
 
+
+
+
+
+
+
+
+		// monta a configuração dos grupos
+		// note que os grupos são invertidos, no addGroup precisa por prepend para o grupo inferior fique em primeiro no vetor
+		$grupos = [
+
+			// grupo 2
+			[
+				// isso vem do addGroup
+				'group_control_field' => 'sexo',
+				'fields' => [
+					'c' => "",
+					's' => "",
+					'r' => "", 
+					'valor' => "SUM",
+					'quantidade' => "SUM",
+					'media' => "SUM"
+				],
+
+				// isso eu crio antes de assinar
+				'group_control' => '', // usado para ver se o grupo mudou e precisa printar a linha do group 
+				'result_fields' => [ // vetor que armazena os valores
+					'valor' => 0,
+					'quantidade' => 0,
+					'media' => 0
+				],
+			],
+
+			// grupo 1
+			[
+				// isso vem do addGroup
+				'group_control_field' => 'raca',
+				'fields' => [
+					'c' => "",
+					's' => "",
+					'r' => "", 
+					'valor' => "SUM",
+					'quantidade' => "SUM",
+					'media' => "SUM"
+				],
+
+				// isso eu crio antes de assinar
+				'group_control' => '', // usado para ver se o grupo mudou e precisa printar a linha do group 
+				'result_fields' => [ // vetor que armazena os valores
+					'valor' => 0,
+					'quantidade' => 0,
+					'media' => 0
+				],
+			],
+
+			
+		];
+
+
+
+		// tentativa de processar a tabela aqui, ja fazendo as formatações, agrupamentos, etc
+		$data = [];
+		$data_header = [];
+		foreach($this->vars['dataset'] as $row) {
+
+			$final_row = [];
+
+			// percorre as colunas
+			foreach($row as $column => $value) {
+
+				// verifica se tem configuração da colun
+				$config = NULL;
+				if($this->vars['dataset_column_configs'][$column]) {
+					$config = $this->vars['dataset_column_configs'][$column];
+				}
+
+				// verifica se deve esconder
+				if($config['hide']??FALSE) {
+					continue;
+				}
+
+				// verifica se o header ja foi montado
+				if(!isset($data_header[$column])) {
+					$data_header[$column] = $config['title']??$column;
+				}
+
+				// verifica a formatação
+				if(($config['type']??"") == "decimal") {
+					$value = number_format($value, $config['decimals']??2, $config['decimal_separator']??",", $config['thousands_separator']??".");
+				}
+				else if(($config['type']??"") == "boolean") {
+					if($value === TRUE) {
+						$value = "Sim";
+					}
+					else if($value === FALSE) {
+						$value = "Não";
+					}
+				}
+				else if(($config['type']??"") == "date") {
+					if(strlen($value??"") > 0) {
+						$value = date($config['format'], strtotime($value));
+					}
+				}
+					 
+				// verifica o prefixo e prefixo
+				$value = ($config['prefix']??"") . $value . ($config['sufix']??"");
+
+				// adiciona a coluna à linha
+				$final_row[$column] = $value;
+
+			}
+
+			// adiciona a linha ao vetor final
+			$data[] = $final_row;
+
+			// percorre os grupos
+			foreach($grupos as $gupo) {
+
+			}
+
+		}
+
+		// 
+		$this->vars['dataset'] = $data;
+		$this->vars['dataset_header'] = $data_header;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		// faz o render
 		$this->render();
 	}

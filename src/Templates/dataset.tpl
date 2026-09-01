@@ -53,76 +53,19 @@
 			<table class="report-table">
 				<thead>
 					<tr>
-					{foreach from=$dataset[0] key=datacolumn item=datavalue}
-
-						{* verifica se a coluna está oculta *}
-						{if $dataset_column_configs[$datacolumn]['hide']|default:FALSE}
-							{continue}
-						{/if}
-						
-						{if isset($dataset_column_configs[$datacolumn]['title'])}
-							<th>{$dataset_column_configs[$datacolumn]['title']}</th>
-						{else}
-							<th>{$datacolumn}</th>
-						{/if}
-
+					{foreach from=$dataset_header item=header}
+						<th>{$header}</th>
 					{/foreach}
 					</tr>
 				</thead>
 				<tbody>
-				
-					{foreach from=$dataset item=dataitem}
+					{foreach from=$dataset item=fields}
 						<tr>
-							{foreach from=$dataitem key=datacolumn item=datavalue}
-
-								{assign var=column_prefix value=""}
-								{assign var=column_sufix value=""}
-								
-								{assign var=column_value value=$datavalue}
-
-								{* verifica se tem configuração da coluna *}
-								{if isset($dataset_column_configs[$datacolumn])}
-
-									{assign var=column_config value=$dataset_column_configs[$datacolumn]}
-
-									{* verifica se a coluna está oculta *}
-									{if $column_config['hide']|default:FALSE}
-										{continue}
-									{/if}
-
-									{* salva o prefixo e sufixo *}
-									{assign var=column_prefix value=$column_config['prefix']|default:""}
-									{assign var=column_sufix value=$column_config['sufix']|default:""}
-
-									{* formata o tipo decimal *}
-									{if $column_config['type']|default:"" == "decimal"}
-										{assign var=column_value value=number_format($column_value, $column_config['decimals']|default:2, $column_config['decimal_separator']|default:".", $column_config['thousands_separator']|default:",")}
-									
-									{* formata o tipo data *}
-									{else if $column_config['type']|default:"" == "date"}
-										{if strlen($column_value|default:"") > 0}
-										{assign var=column_value value=date($column_config['format'], strtotime($column_value))}
-										{/if}
-
-									{* formata o tipo boolean *}
-									{else if $column_config['type']|default:"" == "boolean"}
-										{if $column_value}
-											{assign var=column_value value="Sim"}
-										{else}
-											{assign var=column_value value="Não"}
-										{/if}
-
-									{/if}
-								
-								{/if}
-								
-								<td>
-									{$column_prefix}{$column_value|escape}{$column_sufix}
-								</td>
-							
+							{foreach from=$fields item=value}
+								<td>{$value}</td>
 							{/foreach}
 						</tr>
-					{/foreach}		
+					{/foreach}
 				</tbody>
 			</table>
 		</div>

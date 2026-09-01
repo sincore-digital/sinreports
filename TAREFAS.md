@@ -12,3 +12,4 @@
 - [x] ver se tem como usar um diretório temporario do PHP, do sistema ou um diretório da lib, para não ter que configurar o smarty
 - [x] não fazer o die() ou exit() nos metodos, só manda pra tela e deixa continuar o codigo. quem deve saber se deve matar o script ou nã é o dev, nao a lib
 - [ ] criar um helper para conversão de tipos, assim não fica um monte de if no .tpl e tambem da pra usar internacionalização
+- [ ] após fazer o prepare, setar uma variavel $prepared por exemplo, para que a gente bloqueie certos metodos, ou libere certos metodos, por exemplo, nao deixar chamar o toHtml sem ter o prepared, ou configurar uma coluna depois de ja prepared

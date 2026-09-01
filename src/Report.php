@@ -32,6 +32,13 @@ class Report
 	private array $templateVars;
 
 	/**
+	 * Armazena os grupos do dataseet
+	 * 
+	 * @var array
+	 */
+	private array $groups = [];
+
+	/**
 	 * Construtor da classe
 	 */
 	public function __construct()
@@ -116,7 +123,18 @@ class Report
 		// }
 
 		// d($this->templateVars);
+
+
+
+
+
+
+
+
+
 		
+		// adiciona os grupos ao config
+		$this->configs['groups'] = $this->groups;
 
 		// retorna ele mesmo
 		return $this;
@@ -206,6 +224,21 @@ class Report
 	{
 		// armazena os dados no vetor de variaveis, ja que é essa a variavel padrão usada no tpl padrão
 		$this->templateVars['dataset'] = $dataset;
+
+		// retorna ele mesmo
+		return $this;
+	}
+
+	/**
+	 * Adiciona um novo gropo
+	 * 
+	 * @param array $group
+	 * @return \SiNReports\Report
+	 */
+	public function addGroup(array $group): \SiNReports\Report
+	{
+		// armazena o grupo
+		$this->groups[] = $group;
 
 		// retorna ele mesmo
 		return $this;
