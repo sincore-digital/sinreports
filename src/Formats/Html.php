@@ -80,77 +80,16 @@ class Html implements FormatInterface
 			$this->smarty->registerPlugin("modifier", $value, $value);
 		}
 
-
-
-
-
-
-
-
 		// monta a configuração dos grupos
-		$grupos = [
-
-			// grupo 1
-			[
-				// isso vem do addGroup
-				'group' => 'tipo',
-				'fields' => [
-					'valor' => "SUM",
-					'quantidade' => "SUM",
-					'media' => "SUM"
-				],
-
-				// isso eu crio antes de assinar
-				'group_control' => '', // usado para ver se o grupo mudou e precisa printar a linha do group 
-				'result_fields' => [ // vetor que armazena os valores
-					'valor' => 0,
-					'quantidade' => 0,
-					'media' => 0
-				],
-			],
-
-			// grupo 2
-			[
-				// isso vem do addGroup
-				'group' => 'especie',
-				'fields' => [
-					'valor' => "SUM",
-					'quantidade' => "SUM",
-					'media' => "SUM"
-				],
-
-				// isso eu crio antes de assinar
-				'group_control' => '', // usado para ver se o grupo mudou e precisa printar a linha do group 
-				'result_fields' => [ // vetor que armazena os valores
-					'valor' => 0,
-					'quantidade' => 0,
-					'media' => 0
-				],
-			],
+		$groups = [];
+		foreach($this->vars['dataset_groups'] as $group) {
 			
+			foreach($group['fields'] as $field) {
+				$group['result_fields'][$field] = 0;
+			}
 
-			// grupo 3
-			[
-				// isso vem do addGroup
-				'group' => 'sexo',
-				'fields' => [
-					'valor' => "SUM",
-					'quantidade' => "SUM",
-					'media' => "SUM"
-				],
-
-				// isso eu crio antes de assinar
-				'group_control' => '', // usado para ver se o grupo mudou e precisa printar a linha do group 
-				'result_fields' => [ // vetor que armazena os valores
-					'valor' => 0,
-					'quantidade' => 0,
-					'media' => 0
-				],
-			],
-			
-		];
-
-
+			$groups[] = $group;
+		}
 
 		// tentativa de processar a tabela aqui, ja fazendo as formatações, agrupamentos, etc
 		$data = [];
@@ -179,25 +118,7 @@ class Html implements FormatInterface
 				}
 
 				// verifica a formatação
-				if(($config['type']??"") == "decimal") {
-					$value = number_format($value, $config['decimals']??2, $config['decimal_separator']??",", $config['thousands_separator']??".");
-				}
-				else if(($config['type']??"") == "boolean") {
-					if($value === TRUE) {
-						$value = "Sim";
-					}
-					else if($value === FALSE) {
-						$value = "Não";
-					}
-				}
-				else if(($config['type']??"") == "date") {
-					if(strlen($value??"") > 0) {
-						$value = date($config['format'], strtotime($value));
-					}
-				}
-					 
-				// verifica o prefixo e prefixo
-				$value = ($config['prefix']??"") . $value . ($config['sufix']??"");
+				$value = $this->formatColumn($value, $config);
 
 				// adiciona a coluna à linha
 				$final_row[$column] = $value;
@@ -207,23 +128,15 @@ class Html implements FormatInterface
 			// adiciona a linha ao vetor final
 			$data[] = $final_row;
 
-
-
-
-
-
-
-
-
 			// percorre os grupos
 			$resetando = FALSE;
 			$group_data = [];
-			foreach($grupos as $group_index => $grupo) {
+			foreach($groups as $group_index => $grupo) {
 
 				// percorre os fields para calculo
 				foreach($grupo['fields'] as $group_field => $group_type) {
 					if($group_type == "SUM") {
-						$grupos[$group_index]['result_fields'][$group_field] = $grupos[$group_index]['result_fields'][$group_field] + $row[$group_field];
+						$groups[$group_index]['result_fields'][$group_field] = $groups[$group_index]['result_fields'][$group_field] + $row[$group_field];
 					}
 				}
 
@@ -251,34 +164,14 @@ class Html implements FormatInterface
 						}
 						
 						// se é uma coluna de conta
-						if(isset($grupos[$group_index]['result_fields'][$column])) {
-							// guarda o valor calculado
-							$value = $grupos[$group_index]['result_fields'][$column]??"";
+						if(isset($groups[$group_index]['result_fields'][$column])) {
 
-							// recupera a formatação dessa coluna
-							if(($config['type']??"") == "decimal") {
-								$value = number_format($value, $config['decimals']??2, $config['decimal_separator']??",", $config['thousands_separator']??".");
-							}
-							else if(($config['type']??"") == "boolean") {
-								if($value === TRUE) {
-									$value = "Sim";
-								}
-								else if($value === FALSE) {
-									$value = "Não";
-								}
-							}
-							else if(($config['type']??"") == "date") {
-								if(strlen($value??"") > 0) {
-									$value = date($config['format'], strtotime($value));
-								}
-							}
-
-							// verifica o prefixo e prefixo
-							$value = ($config['prefix']??"") . $value . ($config['sufix']??"");
-
+							// formata o valor
+							$value = $this->formatColumn($groups[$group_index]['result_fields'][$column]??"", $config);
+							
 							// exibe o valor calculado e reseta
 							$group_line[] = $value;
-							$grupos[$group_index]['result_fields'][$column] = 0;
+							$groups[$group_index]['result_fields'][$column] = 0;
 						}
 						else {
 							// se não só mostra uma linha vazia
@@ -303,33 +196,11 @@ class Html implements FormatInterface
 			// inverte a ordem das linhas dos grupos, e adiciona ao final do dataset
 			$data = array_merge($data, array_reverse($group_data));
 
-
-
-
-
-
-
-
-
 		}
 
 		// 
 		$this->vars['dataset'] = $data;
 		$this->vars['dataset_header'] = $data_header;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 		// faz o render
 		$this->render();
@@ -403,5 +274,45 @@ class Html implements FormatInterface
 		flush();
 		echo $this->html;
 		exit;
+	}
+
+	/**
+	 * Formata o valor conforme a configuração da coluna
+	 * 
+	 * @param mixed $value Valor
+	 * @param array $config Configuração da coluna
+	 * @return string
+	 */
+	private function formatColumn(mixed $value, array $config): string
+	{
+		// se nao tem configuração da coluna, ja retorna o proprio valor
+		if(!$config) {
+			return $value;
+		}
+		
+		// recupera a formatação dessa coluna
+		if(($config['type']??"") == "decimal") {
+			$value = number_format($value, $config['decimals']??2, $config['decimal_separator']??",", $config['thousands_separator']??".");
+		}
+		else if(($config['type']??"") == "boolean") {
+			if($value === TRUE) {
+				$value = "Sim";
+			}
+			else if($value === FALSE) {
+				$value = "Não";
+			}
+		}
+		else if(($config['type']??"") == "date") {
+			if(strlen($value??"") > 0) {
+				$value = date($config['format'], strtotime($value));
+			}
+		}
+
+		// verifica o prefixo e prefixo
+		$value = ($config['prefix']??"") . $value . ($config['sufix']??"");
+
+		// retorna o valor
+		return $value;
+
 	}
 }

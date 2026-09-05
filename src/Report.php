@@ -134,7 +134,7 @@ class Report
 
 		
 		// adiciona os grupos ao config
-		$this->configs['groups'] = $this->groups;
+		$this->templateVars['dataset_groups'] = $this->groups;
 
 		// retorna ele mesmo
 		return $this;
