@@ -13,3 +13,6 @@
 - [x] não fazer o die() ou exit() nos metodos, só manda pra tela e deixa continuar o codigo. quem deve saber se deve matar o script ou nã é o dev, nao a lib
 - [ ] criar um helper para conversão de tipos, assim não fica um monte de if no .tpl e tambem da pra usar internacionalização
 - [ ] após fazer o prepare, setar uma variavel $prepared por exemplo, para que a gente bloqueie certos metodos, ou libere certos metodos, por exemplo, nao deixar chamar o toHtml sem ter o prepared, ou configurar uma coluna depois de ja prepared
+- [ ] no agrupamento, fazer um tipo que crie um header tambem
+- [ ] criar configuração de alinhamento da coluna
+- [ ] criar configuração para fazer uma linha de total no final

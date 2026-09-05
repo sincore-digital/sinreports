@@ -34,16 +34,22 @@
 			}
 
 			/* Table Footer Formatting */
+			.report-table .group0 td {
+				font-weight: 700;
+				color: #0f172a;
+				background-color: #c3dcf3;
+			}
+
 			.report-table .group1 td {
 				font-weight: 700;
 				color: #0f172a;
-				background-color: #f1f5f9;
+				background-color: #deecf9;
 			}
 
 			.report-table .group2 td {
 				font-weight: 700;
 				color: #0f172a;
-				background-color: #deecf9;
+				background-color: #f1f5f9;
 			}
 
 		</style>
@@ -60,9 +66,11 @@
 				</thead>
 				<tbody>
 					{foreach from=$dataset item=fields}
-						<tr>
-							{foreach from=$fields item=value}
-								<td>{$value}</td>
+						<tr class="{$fields['sin_line_config']['type']|default:""} {$fields['sin_line_config']['type']|default:""}{$fields['sin_line_config']['group_index']|default:""}">
+							{foreach from=$fields key=column item=value}
+								{if $column != "sin_line_config"}
+									<td>{$value}</td>
+								{/if}
 							{/foreach}
 						</tr>
 					{/foreach}

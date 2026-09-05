@@ -88,39 +88,13 @@ class Html implements FormatInterface
 
 
 		// monta a configuração dos grupos
-		// note que os grupos são invertidos, no addGroup precisa por prepend para o grupo inferior fique em primeiro no vetor
 		$grupos = [
-
-			// grupo 2
-			[
-				// isso vem do addGroup
-				'group_control_field' => 'sexo',
-				'fields' => [
-					'c' => "",
-					's' => "",
-					'r' => "", 
-					'valor' => "SUM",
-					'quantidade' => "SUM",
-					'media' => "SUM"
-				],
-
-				// isso eu crio antes de assinar
-				'group_control' => '', // usado para ver se o grupo mudou e precisa printar a linha do group 
-				'result_fields' => [ // vetor que armazena os valores
-					'valor' => 0,
-					'quantidade' => 0,
-					'media' => 0
-				],
-			],
 
 			// grupo 1
 			[
 				// isso vem do addGroup
-				'group_control_field' => 'raca',
+				'group' => 'tipo',
 				'fields' => [
-					'c' => "",
-					's' => "",
-					'r' => "", 
 					'valor' => "SUM",
 					'quantidade' => "SUM",
 					'media' => "SUM"
@@ -135,6 +109,44 @@ class Html implements FormatInterface
 				],
 			],
 
+			// grupo 2
+			[
+				// isso vem do addGroup
+				'group' => 'especie',
+				'fields' => [
+					'valor' => "SUM",
+					'quantidade' => "SUM",
+					'media' => "SUM"
+				],
+
+				// isso eu crio antes de assinar
+				'group_control' => '', // usado para ver se o grupo mudou e precisa printar a linha do group 
+				'result_fields' => [ // vetor que armazena os valores
+					'valor' => 0,
+					'quantidade' => 0,
+					'media' => 0
+				],
+			],
+			
+
+			// grupo 3
+			[
+				// isso vem do addGroup
+				'group' => 'sexo',
+				'fields' => [
+					'valor' => "SUM",
+					'quantidade' => "SUM",
+					'media' => "SUM"
+				],
+
+				// isso eu crio antes de assinar
+				'group_control' => '', // usado para ver se o grupo mudou e precisa printar a linha do group 
+				'result_fields' => [ // vetor que armazena os valores
+					'valor' => 0,
+					'quantidade' => 0,
+					'media' => 0
+				],
+			],
 			
 		];
 
@@ -143,7 +155,7 @@ class Html implements FormatInterface
 		// tentativa de processar a tabela aqui, ja fazendo as formatações, agrupamentos, etc
 		$data = [];
 		$data_header = [];
-		foreach($this->vars['dataset'] as $row) {
+		foreach($this->vars['dataset'] as $row_index => $row) {
 
 			$final_row = [];
 
@@ -195,10 +207,109 @@ class Html implements FormatInterface
 			// adiciona a linha ao vetor final
 			$data[] = $final_row;
 
+
+
+
+
+
+
+
+
 			// percorre os grupos
-			foreach($grupos as $gupo) {
+			$resetando = FALSE;
+			$group_data = [];
+			foreach($grupos as $group_index => $grupo) {
+
+				// percorre os fields para calculo
+				foreach($grupo['fields'] as $group_field => $group_type) {
+					if($group_type == "SUM") {
+						$grupos[$group_index]['result_fields'][$group_field] = $grupos[$group_index]['result_fields'][$group_field] + $row[$group_field];
+					}
+				}
+
+
+				// recupera o proximo registro
+				$proximo = $this->vars['dataset'][$row_index+1]??NULL;
+
+				// se o grupo mudou
+				if(($row[$grupo['group']] != $proximo[$grupo['group']]) || ($resetando)) {
+					// marca que está resetando, porque assim os proximos grupos de nivel mais baixos precisam ser resetados tambem
+					$resetando = TRUE;
+
+					// percorre as colunas da query, coluna por coluna, para criar a linha do grupo
+					$group_line = [];
+					foreach($row as $column => $value) {
+						// verifica se tem configuração da colun
+						$config = NULL;
+						if($this->vars['dataset_column_configs'][$column]) {
+							$config = $this->vars['dataset_column_configs'][$column];
+						}
+						
+						// verifica se deve esconder
+						if($config['hide']??FALSE) {
+							continue;
+						}
+						
+						// se é uma coluna de conta
+						if(isset($grupos[$group_index]['result_fields'][$column])) {
+							// guarda o valor calculado
+							$value = $grupos[$group_index]['result_fields'][$column]??"";
+
+							// recupera a formatação dessa coluna
+							if(($config['type']??"") == "decimal") {
+								$value = number_format($value, $config['decimals']??2, $config['decimal_separator']??",", $config['thousands_separator']??".");
+							}
+							else if(($config['type']??"") == "boolean") {
+								if($value === TRUE) {
+									$value = "Sim";
+								}
+								else if($value === FALSE) {
+									$value = "Não";
+								}
+							}
+							else if(($config['type']??"") == "date") {
+								if(strlen($value??"") > 0) {
+									$value = date($config['format'], strtotime($value));
+								}
+							}
+
+							// verifica o prefixo e prefixo
+							$value = ($config['prefix']??"") . $value . ($config['sufix']??"");
+
+							// exibe o valor calculado e reseta
+							$group_line[] = $value;
+							$grupos[$group_index]['result_fields'][$column] = 0;
+						}
+						else {
+							// se não só mostra uma linha vazia
+							$group_line[] = "";
+						}
+					}
+
+					// adiciona a coluna de controle
+					$group_line['sin_line_config'] = [
+						'type' => "group", 
+						'group_name' => $grupo['group'],
+						'group_index' => $group_index,
+
+					];
+
+					// adiciona a linha final ao grupo
+					$group_data[] = $group_line;
+				}
 
 			}
+
+			// inverte a ordem das linhas dos grupos, e adiciona ao final do dataset
+			$data = array_merge($data, array_reverse($group_data));
+
+
+
+
+
+
+
+
 
 		}
 
