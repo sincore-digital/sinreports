@@ -63,15 +63,33 @@ class Pdf implements FormatInterface
 	}
 
 	/**
+	 * renderiza e salva o pdf usando ironpress
+	 */
+	private function renderPdfWithIronPress()
+	{
+		$filename = "teste_arquivo_temp";
+		$temp_html_filepath = sys_get_temp_dir() . "/sinreports/tpl_compiled/" . $filename . ".html";
+		$temp_pdf_filepath = sys_get_temp_dir() . "/sinreports/tpl_compiled/" . $filename . ".pdf";
+
+		// grava num arquivo temporario
+		file_put_contents($temp_html_filepath, $this->html);
+
+		exec(__DIR__ . '/../../bin/ironpress --margin 28 ' . $temp_html_filepath . ' ' . $temp_pdf_filepath);
+
+		return $temp_pdf_filepath;
+	}
+
+	/**
 	 * Exibe o pdf na tela
 	 * 
 	 * @return void
 	 */
 	public function show(): void
 	{
-		$a = 2;
+		$ironpress = $this->config['use_ironpress']??1;
 
-		if($a == 1) {
+		if($ironpress == 1) {
+
 			// cria e envia o pdf
 			if(!$this->pdf->send()) {
 				// se debug estiver setado como true, exibir $this->pdf->getError()
@@ -80,14 +98,7 @@ class Pdf implements FormatInterface
 		}
 		else {
 
-			$filename = "teste_arquivo_temp";
-			$temp_html_filepath = sys_get_temp_dir() . "/sinreports/tpl_compiled/" . $filename . ".html";
-			$temp_pdf_filepath = sys_get_temp_dir() . "/sinreports/tpl_compiled/" . $filename . ".pdf";
-
-			// grava num arquivo temporario
-			file_put_contents($temp_html_filepath, $this->html);
-
-			exec(__DIR__ . '/../../bin/ironpress --margin 28 ' . $temp_html_filepath . ' ' . $temp_pdf_filepath);
+			$temp_pdf_filepath = $this->renderPdfWithIronPress();
 
 			header('Content-Type: application/pdf');
 			header('Content-Disposition: inline; filename="' . basename($temp_pdf_filepath) . '"');
@@ -107,10 +118,19 @@ class Pdf implements FormatInterface
 	 */
 	public function save(string $filepath): void
 	{
-		// cria o pdf e salva o arquivo
-		if(!$this->pdf->saveAs($filepath)) {
-    		// se debug estiver setado como true, exibir $this->pdf->getError()
-			throw new \Exception("Could not create PDF");
+		$ironpress = $this->config['use_ironpress']??1;
+
+		if($ironpress == 1) {
+			// cria o pdf e salva o arquivo
+			if(!$this->pdf->saveAs($filepath)) {
+				// se debug estiver setado como true, exibir $this->pdf->getError()
+				throw new \Exception("Could not create PDF");
+			}
+		}
+		else {
+			$temp_pdf_filepath = $this->renderPdfWithIronPress();
+
+			move_uploaded_file($temp_pdf_filepath, $filepath);
 		}
 	}
 
@@ -122,10 +142,28 @@ class Pdf implements FormatInterface
 	 */
 	public function download(string $filename=""): void
 	{
-		// cria e envia o pdf
-		if(!$this->pdf->send($filename)) {
-			// se debug estiver setado como true, exibir $this->pdf->getError()
-			throw new \Exception("Could not create PDF");
+		$ironpress = $this->config['use_ironpress']??1;
+
+		if($ironpress == 1) {
+			// cria e envia o pdf
+			if(!$this->pdf->send($filename)) {
+				// se debug estiver setado como true, exibir $this->pdf->getError()
+				throw new \Exception("Could not create PDF");
+			}
+		}
+		else {
+			$temp_pdf_filepath = $this->renderPdfWithIronPress();
+
+			header('Content-Description: File Transfer');
+			header('Content-Type: application/pdf');
+			header('Content-Disposition: attachment; filename="' . basename($temp_pdf_filepath) . '"');
+			header('Content-Transfer-Encoding: binary');
+			header('Expires: 0');
+			header('Cache-Control: must-revalidate');
+			header('Pragma: public');
+			header('Content-Length: ' . filesize($temp_pdf_filepath));
+			
+			readfile($temp_pdf_filepath);
 		}
 	}
 }
