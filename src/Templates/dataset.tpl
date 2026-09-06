@@ -3,6 +3,35 @@
 		<meta charset="utf-8"/>
 
 		<style>
+			html {
+				box-sizing: border-box;
+				-webkit-font-smoothing: antialiased;
+				font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+				font-size: 14px;
+			}
+
+			*, *:before, *:after {
+				box-sizing: inherit;
+			}
+
+			body, h1, h2, h3, h4, h5, h6, p, ol, ul {
+				margin: 0;
+				padding: 0;
+				font-weight: normal;
+				line-height: 1.5;
+				
+			}
+
+			ol, ul {
+				list-style: none;
+			}
+
+			img {
+				max-width: 100%;
+				height: auto;
+			}
+
+
 			.table-container {
 				
 			}
@@ -19,13 +48,13 @@
 			.report-table thead th {
 				background-color: #fff;
 				color: #0a0a0a;
-				font-weight: 600;
-				padding: 7px 5px;
+				font-weight: 700;
+				text-align: left;
 			}
 
 			.report-table th, 
 			.report-table td {
-				padding: 7px 5px;
+				padding: 4px 5px;
 				border-bottom: 1px solid #e2e8f0;
 			}
 
@@ -54,7 +83,7 @@
 
 		</style>
 	</head>
-	<tbody>
+	<body>
 		<div class="table-container">
 			<table class="report-table">
 				<thead>
@@ -65,18 +94,57 @@
 					</tr>
 				</thead>
 				<tbody>
+
+					{* percorre as linhas *}
 					{foreach from=$dataset item=fields}
 						<tr class="{$fields['sin_line_config']['type']|default:""} {$fields['sin_line_config']['type']|default:""}{$fields['sin_line_config']['group_index']|default:""}">
-							{foreach from=$fields key=column item=value}
-								{if $column != "sin_line_config"}
+							
+							{* se é uma linha do tipo agrupamento *}
+							{if $fields['sin_line_config']['type']|default:"" == "group"}
+
+								{* percorre as colunas *}
+								{assign var=colspan value=0}
+								{foreach from=$fields key=column item=value}
+									{if $column == "sin_line_config"}
+										{continue}
+									{/if}
+
+									{* se for uma coluna em branco, nao mostra, para poder por o colspan *}
+									{if $value == ""}
+										{assign var=colspan value=$colspan+1}
+									{else}
+										{* se teve colspan *}
+										{if $colspan > 0}
+											{* mostra a coluna com a quantidade de colspan *}
+											<td colspan="{$colspan}">{$fields['sin_line_config']['group_label']}</td>
+											{assign var=colspan value=0}
+										{/if}
+
+										{* agora sim mostra a coluna atual *}
+										<td>{$value}</td>
+									{/if}
+
+								{/foreach}
+
+							{* linha normal *}
+							{else}
+
+								{* percorre as colunas *}
+								{foreach from=$fields key=column item=value}
+									{if $column == "sin_line_config"}
+										{continue}
+									{/if}
+
+									{* se nao for uma coluna de configuração (adicionada pelo sinreports) *}
 									<td>{$value}</td>
-								{/if}
-							{/foreach}
+
+								{/foreach}
+
+							{/if}
 						</tr>
 					{/foreach}
 				</tbody>
 			</table>
 		</div>
-
-	</tbody>
+	</body>
 </html>

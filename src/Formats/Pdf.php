@@ -69,11 +69,34 @@ class Pdf implements FormatInterface
 	 */
 	public function show(): void
 	{
-		// cria e envia o pdf
-		if(!$this->pdf->send()) {
-			// se debug estiver setado como true, exibir $this->pdf->getError()
-			throw new \Exception("Could not create PDF");
+		$a = 2;
+
+		if($a == 1) {
+			// cria e envia o pdf
+			if(!$this->pdf->send()) {
+				// se debug estiver setado como true, exibir $this->pdf->getError()
+				throw new \Exception("Could not create PDF");
+			}
 		}
+		else {
+
+			$filename = "teste_arquivo_temp";
+			$temp_html_filepath = sys_get_temp_dir() . "/sinreports/tpl_compiled/" . $filename . ".html";
+			$temp_pdf_filepath = sys_get_temp_dir() . "/sinreports/tpl_compiled/" . $filename . ".pdf";
+
+			// grava num arquivo temporario
+			file_put_contents($temp_html_filepath, $this->html);
+
+			exec(__DIR__ . '/../../bin/ironpress --margin 28 ' . $temp_html_filepath . ' ' . $temp_pdf_filepath);
+
+			header('Content-Type: application/pdf');
+			header('Content-Disposition: inline; filename="' . basename($temp_pdf_filepath) . '"');
+			header('Content-Transfer-Encoding: binary');
+			header('Accept-Ranges: bytes');
+			header('Content-Length: ' . filesize($temp_pdf_filepath));
+			readfile($temp_pdf_filepath);
+		}
+
 	}
 
 	/**
