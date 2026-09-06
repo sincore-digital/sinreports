@@ -132,6 +132,8 @@ class Html implements FormatInterface
 			$resetando = FALSE;
 			$group_data = [];
 			foreach($groups as $group_index => $grupo) {
+				// inicia o label do grupo
+				$group_label = $grupo['label']??"";
 
 				// percorre os fields para calculo
 				foreach($grupo['fields'] as $group_field => $group_type) {
@@ -139,7 +141,6 @@ class Html implements FormatInterface
 						$groups[$group_index]['result_fields'][$group_field] = $groups[$group_index]['result_fields'][$group_field] + $row[$group_field];
 					}
 				}
-
 
 				// recupera o proximo registro
 				$proximo = $this->vars['dataset'][$row_index+1]??NULL;
@@ -152,6 +153,10 @@ class Html implements FormatInterface
 					// percorre as colunas da query, coluna por coluna, para criar a linha do grupo
 					$group_line = [];
 					foreach($row as $column => $value) {
+						// inicia o label do grupo
+						
+						$group_label = str_replace("{" . $column . "}", $final_row[$column], $group_label);
+						
 						// verifica se tem configuração da colun
 						$config = NULL;
 						if($this->vars['dataset_column_configs'][$column]) {
@@ -183,6 +188,7 @@ class Html implements FormatInterface
 					$group_line['sin_line_config'] = [
 						'type' => "group", 
 						'group_name' => $grupo['group'],
+						'group_label' => $group_label,
 						'group_index' => $group_index,
 
 					];
