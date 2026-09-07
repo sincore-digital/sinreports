@@ -62,30 +62,50 @@
 				background-color: #f8fafc; 
 			}
 
-			/* Table Footer Formatting */
-			.report-table .group0 td {
+			/* formatação do header e footer */
+			.report-table .group_footer0 td,
+			.report-table .group_header0 td {
 				font-weight: 700;
 				color: #0f172a;
 				background-color: #c3dcf3;
 			}
 
-			.report-table .group1 td {
+			.report-table .group_footer1 td,
+			.report-table .group_header1 td {
 				font-weight: 700;
 				color: #0f172a;
 				background-color: #deecf9;
 			}
 
-			.report-table .group2 td {
+			.report-table .group_footer2 td,
+			.report-table .group_header2 td {
 				font-weight: 700;
 				color: #0f172a;
 				background-color: #f1f5f9;
 			}
+
+			/* formatação do header */
+			.report-table .group_header0 td {
+				text-align: center;
+				text-transform: uppercase;
+				border-top: 10px #fff solid;
+			}
+
+			.report-table .group_header1 td {
+				text-transform: uppercase;
+			}
+
+			.report-table .group_header2 td {
+				text-transform: uppercase;
+			}
+
 
 		</style>
 	</head>
 	<body>
 		<div class="table-container">
 			<table class="report-table">
+				{if !$dataset_hide_header}
 				<thead>
 					<tr>
 					{foreach from=$dataset_header item=header}
@@ -93,11 +113,12 @@
 					{/foreach}
 					</tr>
 				</thead>
+				{/if}
 				<tbody>
 
 					{* percorre as linhas *}
 					{foreach from=$dataset item=fields}
-						<tr class="{$fields['sin_line_config']['type']|default:""} {$fields['sin_line_config']['type']|default:""}{$fields['sin_line_config']['group_index']|default:""}">
+						<tr class="{$fields['sin_line_config']['type']|default:""} {$fields['sin_line_config']['class']|default:""}">
 							
 							{* se é uma linha do tipo agrupamento *}
 							{if $fields['sin_line_config']['type']|default:"" == "group"}
@@ -112,19 +133,33 @@
 									{* se for uma coluna em branco, nao mostra, para poder por o colspan *}
 									{if $value == ""}
 										{assign var=colspan value=$colspan+1}
+
+										{* se for uma linha vazia *}
+										{if $colspan == count($fields)-1}
+											<td colspan="{$colspan}" class="group_label">{$fields['sin_line_config']['group_header_label']}</td>
+										{/if}
 									{else}
 										{* se teve colspan *}
 										{if $colspan > 0}
 											{* mostra a coluna com a quantidade de colspan *}
-											<td colspan="{$colspan}">{$fields['sin_line_config']['group_label']}</td>
+											<td colspan="{$colspan}" class="group_label">{$fields['sin_line_config']['group_footer_label']}</td>
 											{assign var=colspan value=0}
 										{/if}
 
 										{* agora sim mostra a coluna atual *}
-										<td>{$value}</td>
+										<td>{$value} {$colspan} </td>
 									{/if}
 
 								{/foreach}
+
+								{* verifica se deve repetir o header *}
+								{if $fields['sin_line_config']['repeat_header']|default:FALSE}
+									<tr class="header">
+										{foreach from=$dataset_header item=header}
+											<th>{$header}</th>
+										{/foreach}
+									</tr>
+								{/if}
 
 							{* linha normal *}
 							{else}

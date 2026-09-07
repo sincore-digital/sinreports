@@ -96,6 +96,44 @@ class Html implements FormatInterface
 		$data_header = [];
 		foreach($this->vars['dataset'] as $row_index => $row) {
 
+			// percorre os grupos para ver se deve mostrar o header do grupo
+			$resetando = FALSE;
+			$group_data = [];
+			foreach($groups as $group_index => $grupo) {
+				// inicia o label do grupo
+				$group_label = $grupo['header_label']??"";
+
+				// recupera o registro anterior
+				$anterior = $this->vars['dataset'][$row_index-1]??NULL;
+
+				// se o grupo mudou
+				if(($row[$grupo['group']] != $anterior[$grupo['group']]) || ($resetando)) {
+					// marca que está resetando, porque assim os proximos grupos de nivel mais baixos precisam ser resetados tambem
+					$resetando = TRUE;
+
+					$group_line = [];
+					foreach($row as $column => $value) {
+						$group_line[$column] = "";
+
+						$group_label = str_replace("{" . $column . "}", $row[$column], $group_label);
+					}
+					$group_line['sin_line_config'] = [
+						'type' => "group", 
+						'group_name' => $grupo['group'],
+						'group_header_label' => $group_label,
+						'repeat_header' => $grupo['repeat_header'],
+						'class' => "group_header".$group_index,
+					];
+
+
+					// adiciona a coluna à linha
+					if($grupo['show_header']) {
+						$data[] = $group_line;
+					}
+				}
+			}
+
+
 			$final_row = [];
 
 			// percorre as colunas
@@ -133,7 +171,7 @@ class Html implements FormatInterface
 			$group_data = [];
 			foreach($groups as $group_index => $grupo) {
 				// inicia o label do grupo
-				$group_label = $grupo['label']??"";
+				$group_label = $grupo['footer_label']??"";
 
 				// percorre os fields para calculo
 				foreach($grupo['fields'] as $group_field => $group_type) {
@@ -175,12 +213,12 @@ class Html implements FormatInterface
 							$value = $this->formatColumn($groups[$group_index]['result_fields'][$column]??"", $config);
 							
 							// exibe o valor calculado e reseta
-							$group_line[] = $value;
+							$group_line[$column] = $value;
 							$groups[$group_index]['result_fields'][$column] = 0;
 						}
 						else {
 							// se não só mostra uma linha vazia
-							$group_line[] = "";
+							$group_line[$column] = "";
 						}
 					}
 
@@ -188,13 +226,15 @@ class Html implements FormatInterface
 					$group_line['sin_line_config'] = [
 						'type' => "group", 
 						'group_name' => $grupo['group'],
-						'group_label' => $group_label,
-						'group_index' => $group_index,
+						'group_footer_label' => $group_label,
+						'class' => "group_footer".$group_index,
 
 					];
 
 					// adiciona a linha final ao grupo
-					$group_data[] = $group_line;
+					if($grupo['show_footer']??TRUE) {
+						$group_data[] = $group_line;
+					}
 				}
 
 			}
@@ -203,6 +243,8 @@ class Html implements FormatInterface
 			$data = array_merge($data, array_reverse($group_data));
 
 		}
+
+		// d($data);
 
 		// 
 		$this->vars['dataset'] = $data;

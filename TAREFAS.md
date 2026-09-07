@@ -2,7 +2,7 @@
 - [ ] no `toHTML()` pensar numa forma de mostrar uma barrinha com um botão de imprimir ou salvar, por exemplo
 - [ ] no `toHTML()` pensar numa forma de rodar o `window.print()` ou não automaticamente
 - [ ] criar um metodo `setDebug` ou algo assim para mostrar erros avançados, por exemplo, na geração de pdf, que mostra um erro enorme
-- [ ] criar metodo de configuração para passar o caminho do `wkhtmltopdf` caso não consiga usar o da lib, e outras configurações
+- [-] criar metodo de configuração para passar o caminho do `wkhtmltopdf` caso não consiga usar o da lib, e outras configurações
 - [ ] criar o formato do output em CSV
 - [ ] acompanhar o andamento em produção, ja que usamos diretório temporario que não é acessivel pelo usuario, talvez criar um metodo que limpe o diretório todo
 - [ ] criar helpers para formatação conforme o LOCATE no `dataset.tpl`
@@ -13,6 +13,10 @@
 - [x] não fazer o die() ou exit() nos metodos, só manda pra tela e deixa continuar o codigo. quem deve saber se deve matar o script ou nã é o dev, nao a lib
 - [ ] criar um helper para conversão de tipos, assim não fica um monte de if no .tpl e tambem da pra usar internacionalização
 - [ ] após fazer o prepare, setar uma variavel $prepared por exemplo, para que a gente bloqueie certos metodos, ou libere certos metodos, por exemplo, nao deixar chamar o toHtml sem ter o prepared, ou configurar uma coluna depois de ja prepared
-- [ ] no agrupamento, fazer um tipo que crie um header tambem
+- [x] no agrupamento, fazer um tipo que crie um header tambem
+- [ ] configurar se deve repetir o header a cada novo agrupamento
 - [ ] criar configuração de alinhamento da coluna
 - [ ] criar configuração para fazer uma linha de total no final
+- [ ] criar o arquivo .sin que seja um json zipado, contendo o html, uma lista de queries, estilos, etc, para ler o arquivo e processar, assim daria para chamar um `\SiNReports\Report::create("arquivo.sin")->params(['parametro1'=>12, 'parametro2'=>123])->prepare()->toPdf()->show()`
+- [ ] fazer agrupamento (footer, header e repetir header) no XLS
+- [ ] esconder o header no XLS

@@ -73,8 +73,7 @@ class Pdf implements FormatInterface
 
 		// grava num arquivo temporario
 		file_put_contents($temp_html_filepath, $this->html);
-
-		exec(__DIR__ . '/../../bin/ironpress --margin 28 ' . $temp_html_filepath . ' ' . $temp_pdf_filepath);
+		exec(__DIR__ . '/../../bin/ironpress --base-path "' . ($this->config['basepath']??"") . '" --margin 28 ' . $temp_html_filepath . ' ' . $temp_pdf_filepath);
 
 		return $temp_pdf_filepath;
 	}

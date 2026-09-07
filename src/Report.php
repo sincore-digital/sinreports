@@ -23,6 +23,13 @@ class Report
 	 * @var string
 	 */
 	private string $templateFilepath;
+	
+	/**
+	 * Armazena se deve esconder o header da tabela
+	 * 
+	 * @var bool
+	 */
+	private bool $hideHeader = FALSE;
 
 	/**
 	 * Armazena as variaveis do template
@@ -124,17 +131,26 @@ class Report
 
 		// d($this->templateVars);
 
-
-
-
-
-
-
-
-
-		
 		// adiciona os grupos ao config
 		$this->templateVars['dataset_groups'] = $this->groups;
+
+		// adiciona os grupos ao config
+		$this->templateVars['dataset_hide_header'] = $this->hideHeader;
+
+
+
+		// retorna ele mesmo
+		return $this;
+	}
+
+	/**
+	 * Esconde o header
+	 * 
+	 * @return \SiNReports\Report
+	 */
+	public function hideHeader(): \SiNReports\Report
+	{
+		$this->hideHeader = TRUE;
 
 		// retorna ele mesmo
 		return $this;
