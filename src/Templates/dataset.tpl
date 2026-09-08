@@ -107,7 +107,8 @@
 				background: #c3dcf3;
 				color: #000;
 				font-size: 1.6rem;
-				padding: 2px 0px;
+				padding-top: 2px;
+				padding-bottom: 2px;
 				text-transform: uppercase;
 
 				border-top: 1px solid #9799ca;
