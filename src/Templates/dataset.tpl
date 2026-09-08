@@ -3,10 +3,10 @@
 		<meta charset="utf-8"/>
 
 		<style>
+			/* reset */
 			html {
 				box-sizing: border-box;
 				-webkit-font-smoothing: antialiased;
-				font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 				font-size: 14px;
 			}
 
@@ -19,6 +19,7 @@
 				padding: 0;
 				font-weight: normal;
 				line-height: 1.5;
+				font-family: Helvetica, Arial, sans-serif
 				
 			}
 
@@ -31,71 +32,102 @@
 				height: auto;
 			}
 
-
-			.table-container {
-				
-			}
-
+			/* estilo da tabela */
 			.report-table {
 				width: 100%;
 				border-collapse: collapse;
-				font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 				font-size: 0.75rem;
 				text-align: left;
 				background-color: #ffffff;
 			}
 
-			.report-table thead th {
-				background-color: #fff;
-				color: #0a0a0a;
-				font-weight: 700;
+			/* .report-table thead th {
 				text-align: left;
-			}
+				font-weight: 700;
+				text-transform: uppercase;
+				background: #999999;
+			} */
 
-			.report-table th, 
 			.report-table td {
 				padding: 4px 5px;
-				border-bottom: 1px solid #e2e8f0;
+				border-bottom: 1px solid #dddddd;
 			}
 
-			.report-table tbody tr:nth-child(even) {
-				background-color: #f8fafc; 
+			/* alinhamentos */
+			body table .align-left {
+				text-align: left;
+			}
+			body table .align-center {
+				text-align: center;
+			}
+			body table .align-right {
+				text-align: right;
 			}
 
-			/* formatação do header e footer */
-			.report-table .group_footer0 td,
-			.report-table .group_header0 td {
+			/* formatação do header */
+			.report-table tr.header td {
 				font-weight: 700;
-				color: #0f172a;
-				background-color: #c3dcf3;
+				text-transform: uppercase;
 			}
 
-			.report-table .group_footer1 td,
-			.report-table .group_header1 td {
+			/* formatação das linhas */
+			.report-table tr td.row {
+				background: #f7f9fc;
+				font-size: 0.8rem;
+			}
+			.report-table tr:nth-child(even) td.row {
+				background: #fff;
+			}
+
+			/* formatação do footer */
+			.report-table .group_footer0 td {
 				font-weight: 700;
-				color: #0f172a;
-				background-color: #deecf9;
+				background: #c3dcf3;
+				color: #000;
 			}
 
-			.report-table .group_footer2 td,
-			.report-table .group_header2 td {
+			.report-table .group_footer1 td {
+				font-weight: 700;
+				background: #deecf9;
+				color: #000000;
+			}
+
+			.report-table .group_footer2 td {
 				font-weight: 700;
 				color: #0f172a;
 				background-color: #f1f5f9;
 			}
 
 			/* formatação do header */
+			.report-table .group_header0 {
+				/* border-top: 15px #fff solid; */
+			}
 			.report-table .group_header0 td {
-				text-align: center;
+				font-weight: 700;
+				background: #c3dcf3;
+				color: #000;
+				font-size: 1.6rem;
+				padding: 2px 0px;
 				text-transform: uppercase;
-				border-top: 10px #fff solid;
+
+				border-top: 1px solid #9799ca;
 			}
 
 			.report-table .group_header1 td {
+				font-weight: 700;
+				background: #deecf9;
+				color: #000;
+				font-size: 1.4rem;
+				padding: 2px 5px;
 				text-transform: uppercase;
 			}
 
 			.report-table .group_header2 td {
+				font-weight: 700;
+				background: #f1f5f9;
+				color: #000;
+				font-size: 1.4rem;
+				padding: 2px 5px;
 				text-transform: uppercase;
 			}
 
@@ -105,16 +137,17 @@
 	<body>
 		<div class="table-container">
 			<table class="report-table">
-				{if !$dataset_hide_header}
-				<thead>
-					<tr>
-					{foreach from=$dataset_header item=header}
-						<th>{$header}</th>
-					{/foreach}
-					</tr>
-				</thead>
-				{/if}
+
+				
 				<tbody>
+					{* header *}
+					{if !$dataset_hide_header}
+						<tr class="header">
+						{foreach from=$dataset_header key=column item=header}
+							<td class="align-{$dataset_config[$column]['align']}">{$header}</td>
+						{/foreach}
+						</tr>
+					{/if}
 
 					{* percorre as linhas *}
 					{foreach from=$dataset item=fields}
@@ -136,7 +169,7 @@
 
 										{* se for uma linha vazia *}
 										{if $colspan == count($fields)-1}
-											<td colspan="{$colspan}" class="group_label">{$fields['sin_line_config']['group_header_label']}</td>
+											<td colspan="{$colspan}" class="group_label ">{$fields['sin_line_config']['group_header_label']}</td>
 										{/if}
 									{else}
 										{* se teve colspan *}
@@ -147,7 +180,7 @@
 										{/if}
 
 										{* agora sim mostra a coluna atual *}
-										<td>{$value} {$colspan} </td>
+										<td class="align-{$dataset_config[$column]['align']}">{$value}</td>
 									{/if}
 
 								{/foreach}
@@ -155,8 +188,8 @@
 								{* verifica se deve repetir o header *}
 								{if $fields['sin_line_config']['repeat_header']|default:FALSE}
 									<tr class="header">
-										{foreach from=$dataset_header item=header}
-											<th>{$header}</th>
+										{foreach from=$dataset_header key=column item=header}
+											<td class="align-{$dataset_config[$column]['align']}">{$header}</td>
 										{/foreach}
 									</tr>
 								{/if}
@@ -171,7 +204,7 @@
 									{/if}
 
 									{* se nao for uma coluna de configuração (adicionada pelo sinreports) *}
-									<td>{$value}</td>
+									<td class="row align-{$dataset_config[$column]['align']}">{$value}</td>
 
 								{/foreach}
 

@@ -94,6 +94,7 @@ class Html implements FormatInterface
 		// tentativa de processar a tabela aqui, ja fazendo as formatações, agrupamentos, etc
 		$data = [];
 		$data_header = [];
+		$data_config = [];
 		foreach($this->vars['dataset'] as $row_index => $row) {
 
 			// percorre os grupos para ver se deve mostrar o header do grupo
@@ -155,6 +156,14 @@ class Html implements FormatInterface
 					$data_header[$column] = $config['title']??$column;
 				}
 
+				// verifica se a configuração ja foi montada
+				if(!isset($data_config[$column])) {
+					$data_config[$column] = [
+						'align' => $config['align']??"left",
+						'hide' => $config['hide']??FALSE
+					];
+				}
+
 				// verifica a formatação
 				$value = $this->formatColumn($value, $config);
 
@@ -193,7 +202,7 @@ class Html implements FormatInterface
 					foreach($row as $column => $value) {
 						// inicia o label do grupo
 						
-						$group_label = str_replace("{" . $column . "}", $final_row[$column], $group_label);
+						$group_label = str_replace("{" . $column . "}", $row[$column], $group_label);
 						
 						// verifica se tem configuração da colun
 						$config = NULL;
@@ -244,11 +253,14 @@ class Html implements FormatInterface
 
 		}
 
+		// d($data_config);
+		// d($data_header);
 		// d($data);
 
 		// 
 		$this->vars['dataset'] = $data;
 		$this->vars['dataset_header'] = $data_header;
+		$this->vars['dataset_config'] = $data_config;
 
 		// faz o render
 		$this->render();
