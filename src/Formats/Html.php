@@ -84,7 +84,7 @@ class Html implements FormatInterface
 		$groups = [];
 		foreach($this->vars['dataset_groups'] as $group) {
 			
-			foreach($group['fields'] as $field) {
+			foreach($group['fields'] as $field => $value) {
 				$group['result_fields'][$field] = 0;
 			}
 
@@ -204,7 +204,7 @@ class Html implements FormatInterface
 						
 						$group_label = str_replace("{" . $column . "}", $row[$column], $group_label);
 						
-						// verifica se tem configuração da colun
+						// verifica se tem configuração da coluna
 						$config = NULL;
 						if($this->vars['dataset_column_configs'][$column]) {
 							$config = $this->vars['dataset_column_configs'][$column];
@@ -218,12 +218,29 @@ class Html implements FormatInterface
 						// se é uma coluna de conta
 						if(isset($groups[$group_index]['result_fields'][$column])) {
 
+							// verifica se é uma coluna de calculo
+							if(strpos($groups[$group_index]['fields'][$column], "CALC") !== FALSE) {
+
+								// extrai somente a formula
+								$calc = substr($groups[$group_index]['fields'][$column], 5, strlen($groups[$group_index]['fields'][$column]) - 5 - 1);
+								$expression = str_replace(["{", "}"], "", $calc);
+
+								// cria o parser para o calculo e adiciona as variaveis
+								$executor = new \NXP\MathExecutor();
+								foreach($groups[$group_index]['result_fields'] as $c => $v) {
+									$executor->setVar($c, $v);
+								}
+
+								// executa o calculo
+								$groups[$group_index]['result_fields'][$column] = $executor->execute(str_replace(["{", "}"], "", $expression));
+							}
+
 							// formata o valor
 							$value = $this->formatColumn($groups[$group_index]['result_fields'][$column]??"", $config);
 							
-							// exibe o valor calculado e reseta
+							// exibe o valor calculado
 							$group_line[$column] = $value;
-							$groups[$group_index]['result_fields'][$column] = 0;
+							
 						}
 						else {
 							// se não só mostra uma linha vazia
@@ -243,6 +260,11 @@ class Html implements FormatInterface
 					// adiciona a linha final ao grupo
 					if($grupo['show_footer']??TRUE) {
 						$group_data[] = $group_line;
+					}
+
+					// reseta a somatoria
+					foreach($grupo['result_fields'] as $group_field => $group_type) {
+						$groups[$group_index]['result_fields'][$group_field] = 0;
 					}
 				}
 

@@ -86,6 +86,7 @@ $report->setDebugMode(TRUE)
 - `smarty/smarty`: Responsável por ler o template à ser gerado e renderizar em HTML
 - `wkhtmltopdf (Binário)`: Binário responsável por renderizar o HTML em PDF
 - `mikehaertl/phpwkhtmltopdf`: Responsável fazer as chamadas ao `wkhtmltopdf`
+- `neonxp/MathExecutor`: Calculo de operações dinamicas
 
 ## Contribua
 

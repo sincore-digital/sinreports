@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0fc2b5b5d16684aa3fbff577e5c64108",
+    "content-hash": "1a39cf7865f59ff1e4a0751124753afb",
     "packages": [
         {
             "name": "composer/pcre",
@@ -407,6 +407,64 @@
                 "source": "https://github.com/mikehaertl/phpwkhtmltopdf/tree/2.5.0"
             },
             "time": "2021-03-01T19:41:06+00:00"
+        },
+        {
+            "name": "nxp/math-executor",
+            "version": "v2.3.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/neonxp/MathExecutor.git",
+                "reference": "235deeb110839ff643d0e0804c4d362462b13550"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/neonxp/MathExecutor/zipball/235deeb110839ff643d0e0804c4d362462b13550",
+                "reference": "235deeb110839ff643d0e0804c4d362462b13550",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.0 <8.6"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "*",
+                "phpstan/phpstan": "*",
+                "phpunit/phpunit": ">=10.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "NXP\\": "src/NXP"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Alexander 'NeonXP' Kiryukhin",
+                    "email": "a.kiryukhin@mail.ru"
+                },
+                {
+                    "name": "Bruce Wells",
+                    "email": "brucekwells@gmail.com"
+                }
+            ],
+            "description": "Simple math expressions calculator",
+            "homepage": "http://github.com/NeonXP/MathExecutor",
+            "keywords": [
+                "calculator",
+                "expression",
+                "formula",
+                "math",
+                "mathmatics",
+                "parser"
+            ],
+            "support": {
+                "issues": "https://github.com/neonxp/MathExecutor/issues",
+                "source": "https://github.com/neonxp/MathExecutor/tree/v2.3.8"
+            },
+            "time": "2025-11-07T15:11:54+00:00"
         },
         {
             "name": "phpoffice/phpspreadsheet",
