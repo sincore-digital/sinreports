@@ -20,3 +20,6 @@
 - [ ] criar o arquivo .sin que seja um json zipado, contendo o html, uma lista de queries, estilos, etc, para ler o arquivo e processar, assim daria para chamar um `\SiNReports\Report::create("arquivo.sin")->params(['parametro1'=>12, 'parametro2'=>123])->prepare()->toPdf()->show()`
 - [ ] fazer agrupamento (footer, header e repetir header) no XLS
 - [ ] esconder o header no XLS
+- [ ] se for usar o chrome, precisa assinar as margens para o tpl
+- [ ] se for usar o chrome, precisa passar o caminho dos arquivos de fonte , e documentar o font.conf
+- [ ] se for usar o chrome, precisa passar o caminho do chrome caso tenha instalado no servidor e obrigar o caminho caso windows/mac
