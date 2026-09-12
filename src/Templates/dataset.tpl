@@ -3,6 +3,11 @@
 		<meta charset="utf-8"/>
 
 		<style>
+			@page {
+				size: A4;
+				margin: 1cm;
+			}
+
 			/* reset */
 			html {
 				box-sizing: border-box;

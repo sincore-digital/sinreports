@@ -95,3 +95,13 @@ Pull requests são muito bem-vindos. Para novas ideias, por favor utilize a sess
 ## License
 
 [GPLv3](https://github.com/sincore-digital/sinreports/blob/main/LICENSE)
+
+## Lembretes
+https://download-chromium.appspot.com/
+https://github.com/ungoogled-software/ungoogled-chromium-portablelinux
+https://googlechromelabs.github.io/chrome-for-testing/
+
+- wkhtmltopdf é antigo, algumas libs começaram a ser depreciadas, e não da pra compilar estatico, precisa ser instalado no servidor e ainda o libssl1 precisa ser baixado manualmente (depreciado). tambem nao consegui renderizar webp
+- ironpress funcionou muito bem, mas é lento comparado aos outros (até comparado ao chrome headless) quando o documento é grande. alguns erros de renderização ocorrem com frequencia, como por exemplo texto justificado com um strong no meio dele, ele quebra. Acesso externo à imagens e fontes tambem são um problema, contornavel mas é um problema
+- chrome/chromium, funciona muito bem, renderiza muito bem, apresenta bom desempenho, porem tem 700Mb
+- chrome-headless-shell, rapido, mais que o wk até, mas aidna tem 220Mb, mas ja está bem mais aceitavel, melhor opção até agora

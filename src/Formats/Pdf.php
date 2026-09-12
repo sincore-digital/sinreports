@@ -79,23 +79,35 @@ class Pdf implements FormatInterface
 	}
 
 	/**
+	 * renderiza e salva o pdf usando chromium
+	 */
+	private function renderPdfWithChromium()
+	{
+		$filename = uniqid();
+		$temp_html_filepath = sys_get_temp_dir() . "/sinreports/tpl_compiled/" . $filename . ".html";
+		$temp_pdf_filepath = sys_get_temp_dir() . "/sinreports/tpl_compiled/" . $filename . ".pdf";
+
+		// grava num arquivo temporario
+		file_put_contents($temp_html_filepath, $this->html);
+
+		// executa o comando
+		// exec(__DIR__ . "/../../bin/chrome-linux/chrome --headless=new --no-sandbox --disable-dev-shm-usage --disable-gpu --no-pdf-header-footer --print-to-pdf=\"" . $temp_pdf_filepath . "\" " . $temp_html_filepath . " 2>&1", $output, $result_code);
+		exec("export FONTCONFIG_PATH=" . ($this->config['basepath']??"") . " && " . __DIR__ . "/../../bin/c/chrome-headless-shell --headless=new --no-sandbox --disable-dev-shm-usage --disable-gpu --no-pdf-header-footer --print-to-pdf=\"" . $temp_pdf_filepath . "\" " . $temp_html_filepath . " 2>&1", $output, $result_code);
+
+		return $temp_pdf_filepath;
+	}
+
+	/**
 	 * Exibe o pdf na tela
 	 * 
 	 * @return void
 	 */
 	public function show(): void
 	{
-		$ironpress = $this->config['use_ironpress']??1;
+		$ironpress = $this->config['use_ironpress']??FALSE;
+		$chromium = $this->config['use_chromium']??FALSE;
 
-		if($ironpress == 1) {
-
-			// cria e envia o pdf
-			if(!$this->pdf->send()) {
-				// se debug estiver setado como true, exibir $this->pdf->getError()
-				throw new \Exception("Could not create PDF");
-			}
-		}
-		else {
+		if($ironpress) {
 
 			$temp_pdf_filepath = $this->renderPdfWithIronPress();
 
@@ -105,6 +117,28 @@ class Pdf implements FormatInterface
 			header('Accept-Ranges: bytes');
 			header('Content-Length: ' . filesize($temp_pdf_filepath));
 			readfile($temp_pdf_filepath);
+			
+		}
+		else if($chromium) {
+
+			$temp_pdf_filepath = $this->renderPdfWithChromium();
+
+			header('Content-Type: application/pdf');
+			header('Content-Disposition: inline; filename="' . basename($temp_pdf_filepath) . '"');
+			header('Content-Transfer-Encoding: binary');
+			header('Accept-Ranges: bytes');
+			header('Content-Length: ' . filesize($temp_pdf_filepath));
+			readfile($temp_pdf_filepath);
+			
+		}
+		else {
+
+			// cria e envia o pdf
+			if(!$this->pdf->send()) {
+				// se debug estiver setado como true, exibir $this->pdf->getError()
+				throw new \Exception("Could not create PDF");
+			}
+			
 		}
 
 	}
@@ -117,19 +151,25 @@ class Pdf implements FormatInterface
 	 */
 	public function save(string $filepath): void
 	{
-		$ironpress = $this->config['use_ironpress']??1;
+		$ironpress = $this->config['use_ironpress']??FALSE;
+		$chromium = $this->config['use_chromium']??FALSE;
 
-		if($ironpress == 1) {
+		if($ironpress) {
+
+			$temp_pdf_filepath = $this->renderPdfWithIronPress();
+
+			move_uploaded_file($temp_pdf_filepath, $filepath);
+			
+		}
+		else {
+
 			// cria o pdf e salva o arquivo
 			if(!$this->pdf->saveAs($filepath)) {
 				// se debug estiver setado como true, exibir $this->pdf->getError()
 				throw new \Exception("Could not create PDF");
 			}
-		}
-		else {
-			$temp_pdf_filepath = $this->renderPdfWithIronPress();
 
-			move_uploaded_file($temp_pdf_filepath, $filepath);
+			
 		}
 	}
 
@@ -141,16 +181,10 @@ class Pdf implements FormatInterface
 	 */
 	public function download(string $filename=""): void
 	{
-		$ironpress = $this->config['use_ironpress']??1;
+		$ironpress = $this->config['use_ironpress']??FALSE;
+		$chromium = $this->config['use_chromium']??FALSE;
 
-		if($ironpress == 1) {
-			// cria e envia o pdf
-			if(!$this->pdf->send($filename)) {
-				// se debug estiver setado como true, exibir $this->pdf->getError()
-				throw new \Exception("Could not create PDF");
-			}
-		}
-		else {
+		if($ironpress) {
 			$temp_pdf_filepath = $this->renderPdfWithIronPress();
 
 			header('Content-Description: File Transfer');
@@ -163,6 +197,16 @@ class Pdf implements FormatInterface
 			header('Content-Length: ' . filesize($temp_pdf_filepath));
 			
 			readfile($temp_pdf_filepath);
+		}
+		else {
+
+			// cria e envia o pdf
+			if(!$this->pdf->send($filename)) {
+				// se debug estiver setado como true, exibir $this->pdf->getError()
+				throw new \Exception("Could not create PDF");
+			}
+
+			
 		}
 	}
 }
