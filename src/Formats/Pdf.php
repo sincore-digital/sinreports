@@ -14,6 +14,11 @@ class Pdf implements FormatInterface
 	protected array $config;
 
 	/**
+	 * Armazena as opções de criação de PDF
+	 */
+	protected array $options;
+
+	/**
 	 * Armazena o html final
 	 */
 	protected string $html;
@@ -35,31 +40,69 @@ class Pdf implements FormatInterface
 		$this->config = $config;
 		$this->html = $html;
 
-		// prepara os options
-		$options = [
-			// 'binary' => __DIR__ . '/../../bin/wkhtmltopdf',
+		// prepara as configurações
+		$this->options = [
+			
+			// binario do metodo
+			'method' => $config['method']??"wkhtmltopdf", // wkhtmltopdf / chrome / ironpress
+			'binary' => $config['binary']??__DIR__ . "/../../bin/ironpress",
+
+			// configuracoes do arquivo
+			'orientation' => $config['orientation']??"portrait", // landscape
+			'page-size' => $config['page-size']??"A4",
+			'margin-top' => $config['margin-top']??"1",
+			'margin-bottom' => $config['margin-bottom']??"1",
+			'margin-left' => $config['margin-left']??"1",
+			'margin-right' => $config['margin-right']??"1",
+			'title' => $config['title']??"SiNCORE Reports",
+
+			// especificos ironpress
+			'basepath' => $config['basepath']??"",
+
+			// especificos do chrome
+			'fontpath' => NULL,
+
+			// especificos wkhtmltopdf
 			'ignoreWarnings' => TRUE,
 			'load-error-handling' => "skip",
 			'load-media-error-handling' => "skip",
 
-			// 'enable-smart-shrinking',
-			// 'viewport-size' => "1920x1080",
-			// 'page-width' => "1920px",
-			// 'page-height' => "1080px",
 		];
 
-		if(isset($config['orientation'])) $options['orientation'] = $config['orientation'];
-		if(isset($config['page-size'])) $options['page-size'] = $config['page-size'];
-		if(isset($config['margin-bottom'])) $options['margin-bottom'] = $config['margin-bottom'];
-		if(isset($config['margin-top'])) $options['margin-top'] = $config['margin-top'];
-		if(isset($config['margin-left'])) $options['margin-left'] = $config['margin-left'];
-		if(isset($config['margin-right'])) $options['margin-right'] = $config['margin-right'];
-		if(isset($config['title'])) $options['title'] = $config['title'];
+		// se o metodo for wk
+		if($config['method'] == "wkhtmltopdf") {
+			if(strlen($config['binary']??"")) {
+				$this->options['binary'] = $config['binary'];
+			}
+			else {
+				unset($config['binary']);
+			}
+			
+		}
+
+		// cria os diretórios temporarios
+		mkdir(sys_get_temp_dir() . "/sinreports/html_compiled/");
+		mkdir(sys_get_temp_dir() . "/sinreports/pdf_compiled/");
+		
+	}
+
+	/**
+	 * renderiza com wkhtmltopdf
+	 */
+	private function renderPdfWithWKHtmlToPDF()
+	{
+		$options = [
+			'ignoreWarnings' => $this->options['ignoreWarnings'],
+			'load-error-handling' => $this->options['load-error-handling'],
+			'load-media-error-handling' => $this->options['load-media-error-handling'],
+		];
 
 		// cria o objeto para geração de PDF
-		$this->pdf = new \mikehaertl\wkhtmlto\Pdf($options);
-		$this->pdf->addPage($html);
-		
+		$pdf = new \mikehaertl\wkhtmlto\Pdf($options);
+		$pdf->addPage($this->html);
+
+		// retorna o pdf
+		return $pdf;
 	}
 
 	/**
@@ -67,7 +110,7 @@ class Pdf implements FormatInterface
 	 */
 	private function renderPdfWithIronPress()
 	{
-		$filename = "teste_arquivo_temp";
+		$filename = uniqid();
 		$temp_html_filepath = sys_get_temp_dir() . "/sinreports/tpl_compiled/" . $filename . ".html";
 		$temp_pdf_filepath = sys_get_temp_dir() . "/sinreports/tpl_compiled/" . $filename . ".pdf";
 
@@ -84,15 +127,33 @@ class Pdf implements FormatInterface
 	private function renderPdfWithChromium()
 	{
 		$filename = uniqid();
-		$temp_html_filepath = sys_get_temp_dir() . "/sinreports/tpl_compiled/" . $filename . ".html";
-		$temp_pdf_filepath = sys_get_temp_dir() . "/sinreports/tpl_compiled/" . $filename . ".pdf";
+		$temp_html_filepath = sys_get_temp_dir() . "/sinreports/html_compiled/" . $filename . ".html";
+		$temp_pdf_filepath = sys_get_temp_dir() . "/sinreports/pdf_compiled/" . $filename . ".pdf";
 
 		// grava num arquivo temporario
 		file_put_contents($temp_html_filepath, $this->html);
 
+		// organiza os parametros
+		$command = [
+			"export FONTCONFIG_PATH=" . ($this->options['basepath']??""),
+			"&&",
+			$this->options['binary'],
+			"--headless=new",
+			"--no-sandbox",
+			"--disable-dev-shm-usage",
+			"--disable-gpu",
+			"--no-pdf-header-footer",
+			"--print-to-pdf=\"" . $temp_pdf_filepath . "\"",
+			$temp_html_filepath,
+			"2>&1",
+		];
+
 		// executa o comando
-		// exec(__DIR__ . "/../../bin/chrome-linux/chrome --headless=new --no-sandbox --disable-dev-shm-usage --disable-gpu --no-pdf-header-footer --print-to-pdf=\"" . $temp_pdf_filepath . "\" " . $temp_html_filepath . " 2>&1", $output, $result_code);
-		exec("export FONTCONFIG_PATH=" . ($this->config['basepath']??"") . " && " . __DIR__ . "/../../bin/c/chrome-headless-shell --headless=new --no-sandbox --disable-dev-shm-usage --disable-gpu --no-pdf-header-footer --print-to-pdf=\"" . $temp_pdf_filepath . "\" " . $temp_html_filepath . " 2>&1", $output, $result_code);
+		exec(implode(" ", $command), $output, $result_code);
+
+		// echo "<pre>";
+		// var_dump($output);
+		// echo "</pre>";
 
 		return $temp_pdf_filepath;
 	}
@@ -104,41 +165,44 @@ class Pdf implements FormatInterface
 	 */
 	public function show(): void
 	{
-		$ironpress = $this->config['use_ironpress']??FALSE;
-		$chromium = $this->config['use_chromium']??FALSE;
-
-		if($ironpress) {
-
-			$temp_pdf_filepath = $this->renderPdfWithIronPress();
-
-			header('Content-Type: application/pdf');
-			header('Content-Disposition: inline; filename="' . basename($temp_pdf_filepath) . '"');
-			header('Content-Transfer-Encoding: binary');
-			header('Accept-Ranges: bytes');
-			header('Content-Length: ' . filesize($temp_pdf_filepath));
-			readfile($temp_pdf_filepath);
+		// verifica o metodo
+		if($this->options['method'] == "wkhtmltopdf") {
+			// cria o pdf
+			$pdf = $this->renderPdfWithWKHtmlToPDF();
 			
-		}
-		else if($chromium) {
-
-			$temp_pdf_filepath = $this->renderPdfWithChromium();
-
-			header('Content-Type: application/pdf');
-			header('Content-Disposition: inline; filename="' . basename($temp_pdf_filepath) . '"');
-			header('Content-Transfer-Encoding: binary');
-			header('Accept-Ranges: bytes');
-			header('Content-Length: ' . filesize($temp_pdf_filepath));
-			readfile($temp_pdf_filepath);
-			
-		}
-		else {
-
-			// cria e envia o pdf
-			if(!$this->pdf->send()) {
+			// envia
+			if(!$pdf->send()) {
 				// se debug estiver setado como true, exibir $this->pdf->getError()
 				throw new \Exception("Could not create PDF");
 			}
-			
+		}
+		else if($this->options['method'] == "chrome") {
+
+			// cria o pdf
+			$temp_pdf_filepath = $this->renderPdfWithChromium();
+
+			// envia
+			header('Content-Type: application/pdf');
+			header('Content-Disposition: inline; filename="' . basename($temp_pdf_filepath) . '"');
+			header('Content-Transfer-Encoding: binary');
+			header('Accept-Ranges: bytes');
+			header('Content-Length: ' . filesize($temp_pdf_filepath));
+			readfile($temp_pdf_filepath);
+
+		}
+		else {
+
+			// cria o pdf
+			$temp_pdf_filepath = $this->renderPdfWithIronPress();
+
+			// envia
+			header('Content-Type: application/pdf');
+			header('Content-Disposition: inline; filename="' . basename($temp_pdf_filepath) . '"');
+			header('Content-Transfer-Encoding: binary');
+			header('Accept-Ranges: bytes');
+			header('Content-Length: ' . filesize($temp_pdf_filepath));
+			readfile($temp_pdf_filepath);
+
 		}
 
 	}
@@ -151,26 +215,38 @@ class Pdf implements FormatInterface
 	 */
 	public function save(string $filepath): void
 	{
-		$ironpress = $this->config['use_ironpress']??FALSE;
-		$chromium = $this->config['use_chromium']??FALSE;
+		// verifica o metodo
+		if($this->options['method'] == "wkhtmltopdf") {
 
-		if($ironpress) {
-
-			$temp_pdf_filepath = $this->renderPdfWithIronPress();
-
-			move_uploaded_file($temp_pdf_filepath, $filepath);
+			// cria o pdf
+			$pdf = $this->renderPdfWithWKHtmlToPDF();
 			
-		}
-		else {
-
-			// cria o pdf e salva o arquivo
-			if(!$this->pdf->saveAs($filepath)) {
+			// salva
+			if(!$pdf->saveAs($filepath)) {
 				// se debug estiver setado como true, exibir $this->pdf->getError()
 				throw new \Exception("Could not create PDF");
 			}
 
-			
 		}
+		else if($this->options['method'] == "chrome") {
+
+			// cria o pdf
+			$temp_pdf_filepath = $this->renderPdfWithChromium();
+
+			// salva
+			move_uploaded_file($temp_pdf_filepath, $filepath);
+
+		}
+		else {
+
+			// cria o pdf
+			$temp_pdf_filepath = $this->renderPdfWithIronPress();
+
+			// salva
+			move_uploaded_file($temp_pdf_filepath, $filepath);
+
+		}
+
 	}
 
 	/**
@@ -181,15 +257,28 @@ class Pdf implements FormatInterface
 	 */
 	public function download(string $filename=""): void
 	{
-		$ironpress = $this->config['use_ironpress']??FALSE;
-		$chromium = $this->config['use_chromium']??FALSE;
+		// verifica o metodo
+		if($this->options['method'] == "wkhtmltopdf") {
 
-		if($ironpress) {
-			$temp_pdf_filepath = $this->renderPdfWithIronPress();
+			// cria o pdf
+			$pdf = $this->renderPdfWithWKHtmlToPDF();
+			
+			// envia
+			if(!$pdf->send($filename)) {
+				// se debug estiver setado como true, exibir $this->pdf->getError()
+				throw new \Exception("Could not create PDF");
+			}
 
+		}
+		else if($this->options['method'] == "chrome") {
+
+			// cria o pdf
+			$temp_pdf_filepath = $this->renderPdfWithChromium();
+
+			// envia
 			header('Content-Description: File Transfer');
 			header('Content-Type: application/pdf');
-			header('Content-Disposition: attachment; filename="' . basename($temp_pdf_filepath) . '"');
+			header('Content-Disposition: attachment; filename="' . $filename . '"');
 			header('Content-Transfer-Encoding: binary');
 			header('Expires: 0');
 			header('Cache-Control: must-revalidate');
@@ -197,16 +286,25 @@ class Pdf implements FormatInterface
 			header('Content-Length: ' . filesize($temp_pdf_filepath));
 			
 			readfile($temp_pdf_filepath);
+
 		}
 		else {
 
-			// cria e envia o pdf
-			if(!$this->pdf->send($filename)) {
-				// se debug estiver setado como true, exibir $this->pdf->getError()
-				throw new \Exception("Could not create PDF");
-			}
+			// cria o pdf
+			$temp_pdf_filepath = $this->renderPdfWithIronPress();
 
+			// envia
+			header('Content-Description: File Transfer');
+			header('Content-Type: application/pdf');
+			header('Content-Disposition: attachment; filename="' . $filename . '"');
+			header('Content-Transfer-Encoding: binary');
+			header('Expires: 0');
+			header('Cache-Control: must-revalidate');
+			header('Pragma: public');
+			header('Content-Length: ' . filesize($temp_pdf_filepath));
 			
+			readfile($temp_pdf_filepath);
+
 		}
 	}
 }
