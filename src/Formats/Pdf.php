@@ -135,7 +135,7 @@ class Pdf implements FormatInterface
 
 		// organiza os parametros
 		$command = [
-			"export FONTCONFIG_PATH=" . ($this->options['basepath']??""),
+			"export FONTCONFIG_PATH=" . ($this->options['fontpath']??""),
 			"&&",
 			$this->options['binary'],
 			"--headless=new",
