@@ -23,3 +23,4 @@
 - [ ] se for usar o chrome, precisa assinar as margens para o tpl
 - [x] se for usar o chrome, precisa passar o caminho dos arquivos de fonte , e documentar o font.conf
 - [x] se for usar o chrome, precisa passar o caminho do chrome caso tenha instalado no servidor e obrigar o caminho caso windows/mac
+- [ ] no dataset, configurar o orientation, no pdf nao ta ficando na horizontal

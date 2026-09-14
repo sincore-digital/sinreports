@@ -165,7 +165,7 @@ class Html implements FormatInterface
 				}
 
 				// verifica a formatação
-				$value = $this->formatColumn($value, $config);
+				$value = $this->formatColumn($value, $config??[]);
 
 				// adiciona a coluna à linha
 				$final_row[$column] = $value;
