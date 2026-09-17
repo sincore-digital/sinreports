@@ -105,3 +105,5 @@ https://googlechromelabs.github.io/chrome-for-testing/
 - ironpress funcionou muito bem, mas é lento comparado aos outros (até comparado ao chrome headless) quando o documento é grande. alguns erros de renderização ocorrem com frequencia, como por exemplo texto justificado com um strong no meio dele, ele quebra. Acesso externo à imagens e fontes tambem são um problema, contornavel mas é um problema
 - chrome/chromium, funciona muito bem, renderiza muito bem, apresenta bom desempenho, porem tem 700Mb
 - chrome-headless-shell, rapido, mais que o wk até, mas aidna tem 220Mb, mas ja está bem mais aceitavel, melhor opção até agora
+
+- usando docker, o chrome no mac ARM (M4, M5, etc) precisa ser esse https://storage.googleapis.com/chrome-for-testing-public/153.0.8010.47/linux-arm64/chrome-headless-shell-linux-arm64.zip
