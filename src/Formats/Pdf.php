@@ -133,6 +133,11 @@ class Pdf implements FormatInterface
 		// grava num arquivo temporario
 		file_put_contents($temp_html_filepath, $this->html);
 
+		// verifica se o arquivo existe
+		if(!file_exists($this->options['binary'])) {
+			throw new \Exception("Chrome binary not found");
+		}
+		
 		// organiza os parametros
 		$command = [
 			"export FONTCONFIG_PATH=" . ($this->options['fontpath']??""),
@@ -234,7 +239,7 @@ class Pdf implements FormatInterface
 			$temp_pdf_filepath = $this->renderPdfWithChromium();
 
 			// salva
-			move_uploaded_file($temp_pdf_filepath, $filepath);
+			copy($temp_pdf_filepath, $filepath);
 
 		}
 		else {
@@ -243,7 +248,7 @@ class Pdf implements FormatInterface
 			$temp_pdf_filepath = $this->renderPdfWithIronPress();
 
 			// salva
-			move_uploaded_file($temp_pdf_filepath, $filepath);
+			copy($temp_pdf_filepath, $filepath);
 
 		}
 
