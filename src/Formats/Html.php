@@ -45,6 +45,11 @@ class Html implements FormatInterface
 		$this->template = $template;
 		$this->vars = $vars;
 
+		// compatibilidade entre smarty 4 e 5
+		if (!class_exists("Smarty") && class_exists("Smarty\\Smarty")) {
+			class_alias("Smarty\\Smarty", "Smarty");
+		}
+
 		// cria e configura objeto smarty
 		$this->smarty = new \Smarty();
 		$this->smarty->setForceCompile($config['smarty']['force_compile']);
