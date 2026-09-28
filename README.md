@@ -10,7 +10,7 @@ O SiNReports é uma biblioteca gratuita para a geração automatizada de relató
 composer require sincore/sinreports
 ```
 
-Ao baixar a lib, os binários ja está embutidos, mas caso exista problema em executa-los, é possivel utilizar o `path` para o seu proprio binário
+Ao baixar a lib, os binários ja estão embutidos, mas caso exista problema em executa-los, é possivel utilizar o `path` para o seu proprio binário
 
 ## Como usar
 
