@@ -23,6 +23,13 @@ class Report
 	 * @var string
 	 */
 	private string $templateFilepath;
+
+	/**
+	 * Armazena o arquivo .sin do relatório
+	 * 
+	 * @var string
+	 */
+	private string $reportFilepath;
 	
 	/**
 	 * Armazena se deve esconder o header da tabela
@@ -44,6 +51,13 @@ class Report
 	 * @var array
 	 */
 	private array $groups = [];
+
+	/**
+	 * Armazena a conexão pdo
+	 * 
+	 * @var \PDO
+	 */
+	private \PDO $pdo;
 
 	/**
 	 * Construtor da classe
@@ -122,35 +136,42 @@ class Report
 		// verifica se está usando dataset, tabelado
 		$this->templateVars['dataset_column_configs'] = $this->columnConfigs??[];
 
-		// if(isset($this->templateVars['dataset'])) {
-		// 	// percorre columnTitles para trocar os dados da primeira linha
-		// 	foreach($this->columnTitles as $index => $name) {
-		// 		$this->templateVars['dataset'][0][$index] = $name;
-		// 	}
-		// }
-
-		// d($this->templateVars);
-
 		// adiciona os grupos ao config
 		$this->templateVars['dataset_groups'] = $this->groups;
 
 		// adiciona os grupos ao config
 		$this->templateVars['dataset_hide_header'] = $this->hideHeader;
 
+		// verifica se tem arquivo .sin
+		if(strlen($this->reportFilepath??"") > 0) {
 
+			// verifica se tem conexão PDO
+			if(!$this->pdo) {
+				throw new \Exception("É preciso passar a conexão PDO");
+			}
+			
+			// cria o parser do arquivo
+			$reportFile = new ReportFile($this->reportFilepath, $this->templateVars);
 
-		// retorna ele mesmo
-		return $this;
-	}
+			// seta o template html
+			$this->templateFilepath = $reportFile->getTemplateFile();
 
-	/**
-	 * Esconde o header
-	 * 
-	 * @return \SiNReports\Report
-	 */
-	public function hideHeader(): \SiNReports\Report
-	{
-		$this->hideHeader = TRUE;
+			// percorre as queries
+			foreach($reportFile->getQueries() as $query) {
+
+				try {
+					$execution = $this->pdo->prepare($query['sql']);
+					$execution->execute($query['parametros']);
+					$result = $execution->fetchAll(\PDO::FETCH_ASSOC);
+
+					$this->templateVars[$query['nome']] = $result;
+				}
+				catch(\Exception $e) {
+					throw new \Exception("Não foi possivel executar a query da query \{" . $query['nome'] . "\}");
+				}
+
+			}
+		}
 
 		// retorna ele mesmo
 		return $this;
@@ -166,37 +187,6 @@ class Report
 	{
 		// faz o merge das configurações
 		$this->config = array_merge($this->config, $config);
-		
-		// retorna ele mesmo
-		return $this;
-	}
-
-	/**
-	 * Seta o nome das colunas
-	 * 
-	 * @param array $columnTitles
-	 * @return \SiNReports\Report
-	 */
-	// public function setColumnTitles(array $columnTitles): \SiNReports\Report
-	// {
-	// 	// salva o nome das colunas
-	// 	$this->columnTitles = $columnTitles;
-		
-	// 	// retorna ele mesmo
-	// 	return $this;
-	// }
-
-	/**
-	 * Seta as configurações das colunas
-	 * 
-	 * @param string $columnName
-	 * @param array $columnConfig
-	 * @return \SiNReports\Report
-	 */
-	public function configureColumn(string $columnName, array $columnConfig): \SiNReports\Report
-	{
-		// salva as configurações da coluna
-		$this->columnConfigs[$columnName] = $columnConfig;
 		
 		// retorna ele mesmo
 		return $this;
@@ -219,11 +209,15 @@ class Report
 	/**
 	 * Armazena as variaveis do template do relatório
 	 * 
+	 * @deprecated use setParameter($name, $value)
+	 * 
 	 * @param array $vars
 	 * @return \SiNReports\Report
 	 */
 	public function setVars(array $vars): \SiNReports\Report
 	{
+		trigger_error("A função setVars() está obsoleta, use setParameter()", E_USER_DEPRECATED);
+
 		$this->templateVars = $vars;
 
 		// retorna ele mesmo
@@ -231,30 +225,15 @@ class Report
 	}
 
 	/**
-	 * Armazena o vetor de dados
+	 * Adiciona parametros ao relatório
 	 * 
-	 * @param array $dataset
+	 * @param string $nome
+	 * @param mixed $value
 	 * @return \SiNReports\Report
 	 */
-	public function setDataset(array $dataset): \SiNReports\Report
+	public function setParameter(string $nome, mixed $value): \SiNReports\Report
 	{
-		// armazena os dados no vetor de variaveis, ja que é essa a variavel padrão usada no tpl padrão
-		$this->templateVars['dataset'] = $dataset;
-
-		// retorna ele mesmo
-		return $this;
-	}
-
-	/**
-	 * Adiciona um novo gropo
-	 * 
-	 * @param array $group
-	 * @return \SiNReports\Report
-	 */
-	public function addGroup(array $group): \SiNReports\Report
-	{
-		// armazena o grupo
-		$this->groups[] = $group;
+		$this->templateVars[$nome] = $value;
 
 		// retorna ele mesmo
 		return $this;
@@ -303,5 +282,91 @@ class Report
 
 		// retorna o renderizador
 		return $renderer;
+	}
+
+// -- metodos para o parse do .sin file
+
+	/**
+	 * Seta o arquivo .sin do relatório
+	 */
+	public function setReportFile(string $filepath): \SiNReports\Report
+	{
+		// armazena o arquivo
+		$this->reportFilepath = $filepath;
+
+		// retorna ele mesmo
+		return $this;
+	}
+
+	/**
+	 * Seta a conexão PDO
+	 */
+	public function setPdo(\PDO $pdo): \SiNReports\Report
+	{
+		$this->pdo = $pdo;
+
+		// retorna ele mesmo
+		return $this;
+	}
+
+// -- metodos para o dataset
+
+	/**
+	 * Armazena o vetor de dados
+	 * 
+	 * @param array $dataset
+	 * @return \SiNReports\Report
+	 */
+	public function setDataset(array $dataset): \SiNReports\Report
+	{
+		// armazena os dados no vetor de variaveis, ja que é essa a variavel padrão usada no tpl padrão
+		$this->templateVars['dataset'] = $dataset;
+
+		// retorna ele mesmo
+		return $this;
+	}
+
+	/**
+	 * Seta as configurações das colunas
+	 * 
+	 * @param string $columnName
+	 * @param array $columnConfig
+	 * @return \SiNReports\Report
+	 */
+	public function configureColumn(string $columnName, array $columnConfig): \SiNReports\Report
+	{
+		// salva as configurações da coluna
+		$this->columnConfigs[$columnName] = $columnConfig;
+		
+		// retorna ele mesmo
+		return $this;
+	}
+
+	/**
+	 * Esconde o header
+	 * 
+	 * @return \SiNReports\Report
+	 */
+	public function hideHeader(): \SiNReports\Report
+	{
+		$this->hideHeader = TRUE;
+
+		// retorna ele mesmo
+		return $this;
+	}
+
+	/**
+	 * Adiciona um novo gropo
+	 * 
+	 * @param array $group
+	 * @return \SiNReports\Report
+	 */
+	public function addGroup(array $group): \SiNReports\Report
+	{
+		// armazena o grupo
+		$this->groups[] = $group;
+
+		// retorna ele mesmo
+		return $this;
 	}
 }
