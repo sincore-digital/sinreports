@@ -59,8 +59,8 @@ class Pdf implements FormatInterface
 			// especificos ironpress
 			'basepath' => $config['basepath']??"",
 
-			// especificos do chrome
-			'fontpath' => NULL,
+			// especificos do chrome, se nao tivero caminho da fonte, usa o diretorio do chrome mesmo
+			'fontpath' => $config['fontpath']??(dirname($config['binary'])."/fonts"),
 
 			// especificos wkhtmltopdf
 			'ignoreWarnings' => TRUE,
@@ -141,6 +141,8 @@ class Pdf implements FormatInterface
 		// organiza os parametros
 		$command = [
 			"export FONTCONFIG_PATH=" . ($this->options['fontpath']??""),
+			"&&",
+			"cd \"" . dirname($this->options['binary']) . "\"",
 			"&&",
 			$this->options['binary'],
 			"--headless=new",
