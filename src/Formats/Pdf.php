@@ -2,7 +2,6 @@
 
 namespace SiNReports\Formats;
 
-
 /**
  * Classe que trata a renderização final no formato PDF
  */
@@ -44,8 +43,9 @@ class Pdf implements FormatInterface
 		$this->options = [
 			
 			// binario do metodo
-			'method' => $config['method']??"wkhtmltopdf", // wkhtmltopdf / chrome / ironpress
+			'method' => $config['method']??"wkhtmltopdf", // wkhtmltopdf / chrome / ironpress / remote_chrome
 			'binary' => $config['binary']??__DIR__ . "/../../bin/ironpress",
+			'ws' => $config['ws']??"",
 
 			// configuracoes do arquivo
 			'orientation' => $config['orientation']??"portrait", // landscape
@@ -60,7 +60,7 @@ class Pdf implements FormatInterface
 			'basepath' => $config['basepath']??"",
 
 			// especificos do chrome, se nao tivero caminho da fonte, usa o diretorio do chrome mesmo
-			'fontpath' => $config['fontpath']??(dirname($config['binary'])."/fonts"),
+			'fontpath' => $config['fontpath']??(dirname($config['binary']??"")."/fonts"),
 
 			// especificos wkhtmltopdf
 			'ignoreWarnings' => TRUE,
@@ -166,6 +166,50 @@ class Pdf implements FormatInterface
 	}
 
 	/**
+	 * renderiza e salva o pdf usando remote chrome
+	 */
+	private function renderPdfWithRemoteChrome()
+	{
+		$filename = uniqid();
+		$temp_html_filepath = sys_get_temp_dir() . "/sinreports/html_compiled/" . $filename . ".html";
+		$temp_pdf_filepath = sys_get_temp_dir() . "/sinreports/pdf_compiled/" . $filename . ".pdf";
+
+		// remote session
+		$connection = new \HeadlessChromium\Communication\Connection($this->options['ws']);
+		$connection->connect();
+		$browser = new \HeadlessChromium\Browser($connection);
+
+		try {
+			$page = $browser->createPage();
+			$page->setHtml($this->html, 10000, \HeadlessChromium\Page::NETWORK_IDLE);
+
+			$pdf = $page->pdf([
+				// 'landscape'           => true,             // default to false
+				// 'printBackground'     => true,             // default to false
+				'displayHeaderFooter' => FALSE,             // default to false
+				'preferCSSPageSize'   => TRUE,             // default to false (reads parameters directly from @page)
+				// 'marginTop'           => 0.2755905512,              // defaults to ~0.4 (must be a float, value in inches)
+				// 'marginBottom'        => 0.2755905512,              // defaults to ~0.4 (must be a float, value in inches)
+				// 'marginLeft'          => 0.2755905512,              // defaults to ~0.4 (must be a float, value in inches)
+				// 'marginRight'         => 0.2755905512,              // defaults to ~0.4 (must be a float, value in inches)
+				// 'paperWidth'          => 6.0,              // defaults to 8.5 (must be a float, value in inches)
+				// 'paperHeight'         => 6.0,              // defaults to 11.0 (must be a float, value in inches)
+				// 'headerTemplate'      => '<div>foo</div>', // see details above
+				// 'footerTemplate'      => '<div>foo</div>', // see details above
+				// 'scale'               => 1.2,              // defaults to 1.0 (must be a float)
+			]);
+			$pdf->saveToFile($temp_pdf_filepath);
+		}
+		finally {
+			if(isset($page)) {
+				$page->close();
+			}
+		}
+
+		return $temp_pdf_filepath;
+	}
+
+	/**
 	 * Exibe o pdf na tela
 	 * 
 	 * @return void
@@ -187,6 +231,20 @@ class Pdf implements FormatInterface
 
 			// cria o pdf
 			$temp_pdf_filepath = $this->renderPdfWithChromium();
+
+			// envia
+			header('Content-Type: application/pdf');
+			header('Content-Disposition: inline; filename="' . basename($temp_pdf_filepath) . '"');
+			header('Content-Transfer-Encoding: binary');
+			header('Accept-Ranges: bytes');
+			header('Content-Length: ' . filesize($temp_pdf_filepath));
+			readfile($temp_pdf_filepath);
+
+		}
+		else if($this->options['method'] == "remote_chrome") {
+
+			// cria o pdf
+			$temp_pdf_filepath = $this->renderPdfWithRemoteChrome();
 
 			// envia
 			header('Content-Type: application/pdf');
@@ -244,6 +302,15 @@ class Pdf implements FormatInterface
 			copy($temp_pdf_filepath, $filepath);
 
 		}
+		else if($this->options['method'] == "remote_chrome") {
+
+			// cria o pdf
+			$temp_pdf_filepath = $this->renderPdfWithRemoteChrome();
+
+			// salva
+			copy($temp_pdf_filepath, $filepath);
+
+		}
 		else {
 
 			// cria o pdf
@@ -281,6 +348,24 @@ class Pdf implements FormatInterface
 
 			// cria o pdf
 			$temp_pdf_filepath = $this->renderPdfWithChromium();
+
+			// envia
+			header('Content-Description: File Transfer');
+			header('Content-Type: application/pdf');
+			header('Content-Disposition: attachment; filename="' . $filename . '"');
+			header('Content-Transfer-Encoding: binary');
+			header('Expires: 0');
+			header('Cache-Control: must-revalidate');
+			header('Pragma: public');
+			header('Content-Length: ' . filesize($temp_pdf_filepath));
+			
+			readfile($temp_pdf_filepath);
+
+		}
+		else if($this->options['method'] == "remote_chrome") {
+
+			// cria o pdf
+			$temp_pdf_filepath = $this->renderPdfWithRemoteChrome();
 
 			// envia
 			header('Content-Description: File Transfer');

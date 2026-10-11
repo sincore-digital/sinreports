@@ -87,6 +87,7 @@ $report->setDebugMode(TRUE)
 - `wkhtmltopdf (Binário)`: Binário responsável por renderizar o HTML em PDF
 - `mikehaertl/phpwkhtmltopdf`: Responsável fazer as chamadas ao `wkhtmltopdf`
 - `neonxp/MathExecutor`: Calculo de operações dinamicas
+- `chrome-php/chrome`: Chrome remoto
 
 ## Contribua
 

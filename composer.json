@@ -11,6 +11,7 @@
         "smarty/smarty": "^4.0 || ^5.0",
         "mikehaertl/phpwkhtmltopdf": "2.*",
         "phpoffice/phpspreadsheet": "5.*",
-        "nxp/math-executor": "^2.3"
+        "nxp/math-executor": "^2.3",
+        "chrome-php/chrome": "^1.16"
 	}
 }
