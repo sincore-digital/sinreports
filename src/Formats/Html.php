@@ -85,6 +85,9 @@ class Html implements FormatInterface
 			$this->smarty->registerPlugin("modifier", $value, $value);
 		}
 
+		// assina o helper
+		$this->smarty->assign("helpers", new \SiNReports\TemplateHelper());
+
 		// monta a configuração dos grupos
 		$groups = [];
 		foreach($this->vars['dataset_groups'] as $group) {
