@@ -81,13 +81,9 @@ $report->setDebugMode(TRUE)
 
 ```
 
-## Dependências
+## Dependências/Créditos
 
-- `smarty/smarty`: Responsável por ler o template à ser gerado e renderizar em HTML
-- `wkhtmltopdf (Binário)`: Binário responsável por renderizar o HTML em PDF
-- `mikehaertl/phpwkhtmltopdf`: Responsável fazer as chamadas ao `wkhtmltopdf`
-- `neonxp/MathExecutor`: Calculo de operações dinamicas
-- `chrome-php/chrome`: Chrome remoto
+Esse projeto só é possivel graças a grandes [outros projetos](https://reports.sincore.digital/docs/index.html#/creditos)
 
 ## Contribua
 
