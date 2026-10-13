@@ -79,6 +79,13 @@ class Report
 
 			'debugging' => FALSE,
 		];
+
+		// cria os diretórios temporarios
+		if(!file_exists(sys_get_temp_dir() . "/sinreports")) {
+			mkdir(sys_get_temp_dir() . "/sinreports");
+			mkdir(sys_get_temp_dir() . "/sinreports/tpl_compiled");
+			mkdir(sys_get_temp_dir() . "/sinreports/tpl_cached");
+		}
 	}
 
 	/**
